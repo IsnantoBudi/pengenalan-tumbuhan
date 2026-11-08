@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Category, PlacedItem, QuizItem } from "@/types/quiz";
-import { BasketIllustrations, PlantIllustrations } from "./illustrations/PlantIcons";
 import { soundEngine } from "@/lib/audio";
 
 interface BasketContainerProps {
@@ -23,7 +23,6 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
   onPlaceSelectedItem,
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
-  const BasketSvg = BasketIllustrations[category.icon] || BasketIllustrations.buah;
   const isFull = placedItems.length >= 3;
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -108,13 +107,21 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
         </span>
       </div>
 
-      {/* Basket Visual Illustration */}
+      {/* Basket Visual PNG Illustration */}
       <div
         className={`relative flex items-center justify-center my-1 pointer-events-none transition-transform duration-200 ${
-          isHero ? "w-32 h-24 sm:w-44 sm:h-32" : "w-24 h-18 sm:w-28 sm:h-22"
+          isHero ? "w-44 h-28 sm:w-56 sm:h-36" : "w-28 h-20 sm:w-36 sm:h-24"
         }`}
       >
-        <BasketSvg className="w-full h-full drop-shadow-md" />
+        <Image
+          src={`${category.basketImage}?v=2`}
+          alt={`Keranjang ${category.name}`}
+          width={224}
+          height={144}
+          priority={isHero}
+          unoptimized
+          className="w-full h-full object-contain drop-shadow-md select-none"
+        />
       </div>
 
       {/* 3 Slot Miniatur Terbuka (Slot Indikator Item yang Sudah Masuk) */}
@@ -122,17 +129,23 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
         {[0, 1, 2].map((slotIndex) => {
           const item = placedItems[slotIndex];
           if (item) {
-            const ItemSvg = PlantIllustrations[item.svgKey] || PlantIllustrations.buah_1;
             return (
               <div
                 key={slotIndex}
-                className={`rounded-2xl bg-white dark:bg-zinc-800 p-1.5 shadow-md border-2 border-emerald-500 flex items-center justify-center animate-scale-up ${
+                className={`relative rounded-2xl bg-white dark:bg-zinc-800 p-1.5 shadow-md border-2 border-emerald-500 flex items-center justify-center animate-scale-up ${
                   isHero
                     ? "w-12 h-12 sm:w-14 sm:h-14"
                     : "w-8 h-8 sm:w-10 sm:h-10"
                 }`}
               >
-                <ItemSvg className="w-full h-full drop-shadow-xs" />
+                <Image
+                  src={`${item.imageSrc}?v=2`}
+                  alt={item.name}
+                  width={48}
+                  height={48}
+                  unoptimized
+                  className="w-full h-full object-contain drop-shadow-xs select-none"
+                />
               </div>
             );
           }

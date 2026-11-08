@@ -15,7 +15,7 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
   onReset,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isSfxOn, setIsSfxOn] = useState(true);
+  const [isAudioOn, setIsAudioOn] = useState(true);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
@@ -28,14 +28,11 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
     const savedTheme = localStorage.getItem("quiz_theme");
     if (savedTheme === "dark") {
       document.documentElement.classList.add("dark");
-      setIsDarkMode(true);
-    } else if (savedTheme === "light") {
-      document.documentElement.classList.remove("dark");
-      setIsDarkMode(false);
+      requestAnimationFrame(() => {
+        setIsDarkMode(true);
+      });
     } else {
-      // Default to light (bright forest)
       document.documentElement.classList.remove("dark");
-      setIsDarkMode(false);
     }
 
     return () => {
@@ -68,10 +65,10 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
     soundEngine.playPop();
   };
 
-  const toggleSfx = () => {
-    const next = !isSfxOn;
-    setIsSfxOn(next);
-    soundEngine.setSfxEnabled(next);
+  const toggleAudio = () => {
+    const next = !isAudioOn;
+    setIsAudioOn(next);
+    soundEngine.setAudioEnabled(next);
     if (next) soundEngine.playPop();
   };
 
@@ -128,18 +125,18 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
             </span>
           </button>
 
-          {/* Sound SFX Button */}
+          {/* Unified Sound & BGM Button */}
           <button
-            onClick={toggleSfx}
-            title={isSfxOn ? "Matikan Efek Suara" : "Nyalakan Efek Suara"}
-            aria-label="Toggle SFX"
+            onClick={toggleAudio}
+            title={isAudioOn ? "Matikan Musik & Efek Suara" : "Nyalakan Musik & Efek Suara"}
+            aria-label="Toggle Musik & Suara"
             className={`p-2 rounded-xl text-sm font-medium flex items-center justify-center min-w-[40px] min-h-[40px] transition-all ${
-              isSfxOn
+              isAudioOn
                 ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700"
                 : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
             }`}
           >
-            <span>{isSfxOn ? "🔊" : "🔇"}</span>
+            <span>{isAudioOn ? "🔊" : "🔇"}</span>
           </button>
 
           {/* Fullscreen Button */}

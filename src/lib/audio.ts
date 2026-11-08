@@ -1,9 +1,12 @@
-// Web Audio API Synthesizer & Speech Engine
+// Web Audio API Synthesizer, BGM, & Speech Engine
 
 class AudioManager {
   private ctx: AudioContext | null = null;
+  private audioEnabled: boolean = true;
   private sfxEnabled: boolean = true;
   private speechEnabled: boolean = true;
+  private bgmAudio: HTMLAudioElement | null = null;
+  private readonly defaultBgmVolume: number = 0.25;
 
   private getContext(): AudioContext | null {
     if (typeof window === "undefined") return null;
@@ -19,12 +22,57 @@ class AudioManager {
     return this.ctx;
   }
 
-  public setSfxEnabled(enabled: boolean) {
+  private initBgm(): HTMLAudioElement | null {
+    if (typeof window === "undefined") return null;
+    if (!this.bgmAudio) {
+      this.bgmAudio = new Audio("/audio/bgm.mp3");
+      this.bgmAudio.loop = true;
+      this.bgmAudio.autoplay = true;
+      this.bgmAudio.volume = this.defaultBgmVolume;
+    }
+    return this.bgmAudio;
+  }
+
+  // Start BGM on user interaction (resolves browser autoplay policy)
+  public startBgm() {
+    if (!this.audioEnabled) return;
+    const bgm = this.initBgm();
+    if (bgm && bgm.paused) {
+      bgm.play().catch(() => {
+        // Ignored if user hasn't interacted yet
+      });
+    }
+  }
+
+  // Unified master audio toggle (controls both SFX and BGM)
+  public setAudioEnabled(enabled: boolean) {
+    this.audioEnabled = enabled;
     this.sfxEnabled = enabled;
+
+    const bgm = this.initBgm();
+    if (!enabled) {
+      if (bgm) bgm.pause();
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+    } else {
+      if (bgm) {
+        bgm.volume = this.defaultBgmVolume;
+        bgm.play().catch(() => {});
+      }
+    }
+  }
+
+  public isAudioEnabled(): boolean {
+    return this.audioEnabled;
+  }
+
+  public setSfxEnabled(enabled: boolean) {
+    this.setAudioEnabled(enabled);
   }
 
   public isSfxEnabled(): boolean {
-    return this.sfxEnabled;
+    return this.audioEnabled;
   }
 
   public setSpeechEnabled(enabled: boolean) {
@@ -129,6 +177,16 @@ class AudioManager {
     if (!this.sfxEnabled) return;
     const ctx = this.getContext();
     if (!ctx) return;
+
+    // Duck BGM volume during victory celebration
+    if (this.bgmAudio && !this.bgmAudio.paused) {
+      this.bgmAudio.volume = 0.05;
+      setTimeout(() => {
+        if (this.bgmAudio && this.audioEnabled) {
+          this.bgmAudio.volume = this.defaultBgmVolume;
+        }
+      }, 2000);
+    }
 
     const melody = [
       { freq: 523.25, dur: 0.12, delay: 0 },    // C5

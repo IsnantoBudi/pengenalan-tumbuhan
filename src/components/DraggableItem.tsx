@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { QuizItem } from "@/types/quiz";
-import { PlantIllustrations } from "./illustrations/PlantIcons";
 import { soundEngine } from "@/lib/audio";
 
 interface DraggableItemProps {
@@ -22,8 +22,6 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
   onDragStart,
   onDragEnd,
 }) => {
-  const SvgComponent = PlantIllustrations[item.svgKey] || PlantIllustrations.buah_1;
-
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     soundEngine.playPop();
@@ -39,7 +37,7 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
       role="button"
       tabIndex={0}
       aria-pressed={isSelected}
-      aria-label="Pilihan Gambar Bagian Tumbuhan"
+      aria-label={`Pilihan Gambar Bagian Tumbuhan`}
       className={`relative group cursor-grab active:cursor-grabbing select-none rounded-full w-18 h-18 sm:w-20 sm:h-20 p-2 border-3 transition-all duration-200 transform-gpu touch-manipulation flex items-center justify-center shadow-md hover:shadow-lg ${
         isSelected
           ? "border-emerald-500 ring-4 ring-emerald-400/80 scale-110 -translate-y-1 bg-emerald-100/90 dark:bg-emerald-900/80 shadow-emerald-500/30"
@@ -60,9 +58,17 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
         </span>
       )}
 
-      {/* SVG Illustration - Tanpa Label Teks */}
-      <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110">
-        <SvgComponent className="w-full h-full drop-shadow-sm" />
+      {/* Item Image */}
+      <div className="w-13 h-13 sm:w-15 sm:h-15 relative flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110">
+        <Image
+          src={`${item.imageSrc}?v=2`}
+          alt={item.name}
+          width={64}
+          height={64}
+          priority
+          unoptimized
+          className="w-full h-full object-contain drop-shadow-sm select-none"
+        />
       </div>
     </div>
   );

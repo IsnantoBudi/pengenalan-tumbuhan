@@ -9,13 +9,14 @@ export interface Category {
     ring: string;
   };
   icon: string;
+  basketImage: string;
 }
 
 export interface QuizItem {
   id: string;
   name: string;
   categoryId: string;
-  svgKey: string;
+  imageSrc: string;
 }
 
 export interface PlacedItem extends QuizItem {

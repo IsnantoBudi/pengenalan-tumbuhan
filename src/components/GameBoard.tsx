@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { PLANT_CATEGORIES, PLANT_QUIZ_ITEMS } from "@/data/plantQuizData";
 import { QuizItem, PlacedItem, Category } from "@/types/quiz";
 import { HeaderControls } from "./HeaderControls";
@@ -56,6 +56,29 @@ export const GameBoard: React.FC = () => {
     (item) => item.categoryId === activeCategory.id
   );
 
+  // Auto-play BGM immediately on load with passive fallback listeners
+  useEffect(() => {
+    // 1. Langsung putar BGM seketika saat halaman web diakses
+    soundEngine.startBgm();
+
+    // 2. Fallback otomatis jika browser menahan audio sebelum ada interaksi pertama
+    const triggerBgm = () => {
+      soundEngine.startBgm();
+    };
+
+    window.addEventListener("pointerdown", triggerBgm, { once: true });
+    window.addEventListener("pointermove", triggerBgm, { once: true });
+    window.addEventListener("keydown", triggerBgm, { once: true });
+    window.addEventListener("touchstart", triggerBgm, { once: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", triggerBgm);
+      window.removeEventListener("pointermove", triggerBgm);
+      window.removeEventListener("keydown", triggerBgm);
+      window.removeEventListener("touchstart", triggerBgm);
+    };
+  }, []);
+
   // Reset Game
   const resetGame = useCallback(() => {
     const newQueue = shuffleClient(PLANT_CATEGORIES);
@@ -74,6 +97,7 @@ export const GameBoard: React.FC = () => {
 
   // Handle Drag Start
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: QuizItem) => {
+    soundEngine.startBgm();
     e.dataTransfer.setData("application/json", JSON.stringify(item));
     e.dataTransfer.effectAllowed = "move";
     soundEngine.playPop();
@@ -160,6 +184,7 @@ export const GameBoard: React.FC = () => {
   };
 
   const handleSelectItem = (item: QuizItem) => {
+    soundEngine.startBgm();
     if (selectedItem?.id === item.id) {
       setSelectedItem(null);
     } else {

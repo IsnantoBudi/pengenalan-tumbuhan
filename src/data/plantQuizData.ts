@@ -5,6 +5,7 @@ export const PLANT_CATEGORIES: Category[] = [
     id: "akar",
     name: "Akar",
     icon: "akar",
+    basketImage: "/assets/baskets/keranjang-akar.png",
     color: {
       bg: "bg-purple-50 dark:bg-purple-950/30",
       border: "border-purple-400 dark:border-purple-600",
@@ -17,6 +18,7 @@ export const PLANT_CATEGORIES: Category[] = [
     id: "batang",
     name: "Batang",
     icon: "batang",
+    basketImage: "/assets/baskets/keranjang-batang.png",
     color: {
       bg: "bg-amber-100/70 dark:bg-yellow-950/30",
       border: "border-amber-700 dark:border-amber-600",
@@ -29,6 +31,7 @@ export const PLANT_CATEGORIES: Category[] = [
     id: "daun",
     name: "Daun",
     icon: "daun",
+    basketImage: "/assets/baskets/keranjang-daun.png",
     color: {
       bg: "bg-emerald-50 dark:bg-emerald-950/30",
       border: "border-emerald-400 dark:border-emerald-600",
@@ -41,6 +44,7 @@ export const PLANT_CATEGORIES: Category[] = [
     id: "bunga",
     name: "Bunga",
     icon: "bunga",
+    basketImage: "/assets/baskets/keranjang-bunga.png",
     color: {
       bg: "bg-rose-50 dark:bg-rose-950/30",
       border: "border-rose-400 dark:border-rose-600",
@@ -53,6 +57,7 @@ export const PLANT_CATEGORIES: Category[] = [
     id: "buah",
     name: "Buah",
     icon: "buah",
+    basketImage: "/assets/baskets/keranjang-buah.png",
     color: {
       bg: "bg-orange-50 dark:bg-orange-950/30",
       border: "border-orange-400 dark:border-orange-600",
@@ -65,27 +70,27 @@ export const PLANT_CATEGORIES: Category[] = [
 
 export const PLANT_QUIZ_ITEMS: QuizItem[] = [
   // 3 Item Akar (Label seragam: "Akar")
-  { id: "item-akar-1", name: "Akar", categoryId: "akar", svgKey: "akar_1" },
-  { id: "item-akar-2", name: "Akar", categoryId: "akar", svgKey: "akar_2" },
-  { id: "item-akar-3", name: "Akar", categoryId: "akar", svgKey: "akar_3" },
+  { id: "item-akar-1", name: "Akar", categoryId: "akar", imageSrc: "/assets/items/akar1.png" },
+  { id: "item-akar-2", name: "Akar", categoryId: "akar", imageSrc: "/assets/items/akar2.png" },
+  { id: "item-akar-3", name: "Akar", categoryId: "akar", imageSrc: "/assets/items/akar3.png" },
 
   // 3 Item Batang (Label seragam: "Batang")
-  { id: "item-batang-1", name: "Batang", categoryId: "batang", svgKey: "batang_1" },
-  { id: "item-batang-2", name: "Batang", categoryId: "batang", svgKey: "batang_2" },
-  { id: "item-batang-3", name: "Batang", categoryId: "batang", svgKey: "batang_3" },
+  { id: "item-batang-1", name: "Batang", categoryId: "batang", imageSrc: "/assets/items/batang1.png" },
+  { id: "item-batang-2", name: "Batang", categoryId: "batang", imageSrc: "/assets/items/batang2.png" },
+  { id: "item-batang-3", name: "Batang", categoryId: "batang", imageSrc: "/assets/items/batang3.png" },
 
   // 3 Item Daun (Label seragam: "Daun")
-  { id: "item-daun-1", name: "Daun", categoryId: "daun", svgKey: "daun_1" },
-  { id: "item-daun-2", name: "Daun", categoryId: "daun", svgKey: "daun_2" },
-  { id: "item-daun-3", name: "Daun", categoryId: "daun", svgKey: "daun_3" },
+  { id: "item-daun-1", name: "Daun", categoryId: "daun", imageSrc: "/assets/items/daun1.png" },
+  { id: "item-daun-2", name: "Daun", categoryId: "daun", imageSrc: "/assets/items/daun2.png" },
+  { id: "item-daun-3", name: "Daun", categoryId: "daun", imageSrc: "/assets/items/daun3.png" },
 
   // 3 Item Bunga (Label seragam: "Bunga")
-  { id: "item-bunga-1", name: "Bunga", categoryId: "bunga", svgKey: "bunga_1" },
-  { id: "item-bunga-2", name: "Bunga", categoryId: "bunga", svgKey: "bunga_2" },
-  { id: "item-bunga-3", name: "Bunga", categoryId: "bunga", svgKey: "bunga_3" },
+  { id: "item-bunga-1", name: "Bunga", categoryId: "bunga", imageSrc: "/assets/items/bunga1.png" },
+  { id: "item-bunga-2", name: "Bunga", categoryId: "bunga", imageSrc: "/assets/items/bunga2.png" },
+  { id: "item-bunga-3", name: "Bunga", categoryId: "bunga", imageSrc: "/assets/items/bunga3.png" },
 
   // 3 Item Buah (Label seragam: "Buah")
-  { id: "item-buah-1", name: "Buah", categoryId: "buah", svgKey: "buah_1" },
-  { id: "item-buah-2", name: "Buah", categoryId: "buah", svgKey: "buah_2" },
-  { id: "item-buah-3", name: "Buah", categoryId: "buah", svgKey: "buah_3" },
+  { id: "item-buah-1", name: "Buah", categoryId: "buah", imageSrc: "/assets/items/buah1.png" },
+  { id: "item-buah-2", name: "Buah", categoryId: "buah", imageSrc: "/assets/items/buah2.png" },
+  { id: "item-buah-3", name: "Buah", categoryId: "buah", imageSrc: "/assets/items/buah3.png" },
 ];
