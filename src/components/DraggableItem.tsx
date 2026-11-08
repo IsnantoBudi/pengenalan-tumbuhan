@@ -39,38 +39,30 @@ export const DraggableItem: React.FC<DraggableItemProps> = ({
       role="button"
       tabIndex={0}
       aria-pressed={isSelected}
-      aria-label={`Bagian ${item.name}`}
-      className={`relative group cursor-grab active:cursor-grabbing select-none rounded-2xl p-2 sm:p-2.5 bg-white dark:bg-zinc-800/90 border-2 transition-all duration-200 transform-gpu touch-manipulation flex flex-col items-center justify-between shadow-xs hover:shadow-md ${
+      aria-label="Pilihan Gambar Bagian Tumbuhan"
+      className={`relative group cursor-grab active:cursor-grabbing select-none rounded-full w-18 h-18 sm:w-20 sm:h-20 p-2 border-3 transition-all duration-200 transform-gpu touch-manipulation flex items-center justify-center shadow-md hover:shadow-lg ${
         isSelected
-          ? "border-emerald-500 ring-4 ring-emerald-400/60 scale-105 -translate-y-1 shadow-md bg-emerald-50/60 dark:bg-emerald-950/40"
-          : "border-zinc-200 dark:border-zinc-700 hover:border-emerald-400 dark:hover:border-emerald-600 hover:-translate-y-0.5"
+          ? "border-emerald-500 ring-4 ring-emerald-400/80 scale-110 -translate-y-1 bg-emerald-100/90 dark:bg-emerald-900/80 shadow-emerald-500/30"
+          : "border-emerald-200 dark:border-emerald-700/80 bg-white/95 dark:bg-emerald-950/70 hover:border-emerald-400 dark:hover:border-emerald-500 hover:scale-105"
       } ${
         isShaking
-          ? "animate-shake border-red-500 ring-4 ring-red-400/50 bg-red-50 dark:bg-red-950/40"
+          ? "animate-shake border-red-500 ring-4 ring-red-400/60 bg-red-100 dark:bg-red-950/80"
           : ""
       }`}
-      style={{
-        width: "92px",
-        minHeight: "100px",
-      }}
     >
+      {/* Bubble Gloss Highlight */}
+      <div className="absolute top-1.5 left-2.5 w-4 h-2 rounded-full bg-white/70 dark:bg-white/30 blur-[0.5px] pointer-events-none -rotate-25" />
+
       {/* Selected Indicator Badge */}
       {isSelected && (
-        <span className="absolute -top-2 -right-1.5 bg-emerald-600 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-xs animate-bounce">
+        <span className="absolute -top-1 -right-1 bg-emerald-600 text-white text-xs font-black w-5 h-5 rounded-full shadow-md flex items-center justify-center animate-bounce z-10">
           ✓
         </span>
       )}
 
-      {/* SVG Illustration */}
-      <div className="w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-105">
-        <SvgComponent className="w-full h-full drop-shadow-xs" />
-      </div>
-
-      {/* Label Nama Bagian (Seragam & Simpel: "Akar", "Batang", "Daun", "Bunga", "Buah") */}
-      <div className="w-full text-center mt-1">
-        <span className="text-xs sm:text-sm font-extrabold text-zinc-800 dark:text-zinc-100 tracking-wide block truncate">
-          {item.name}
-        </span>
+      {/* SVG Illustration - Tanpa Label Teks */}
+      <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center pointer-events-none transition-transform group-hover:scale-110">
+        <SvgComponent className="w-full h-full drop-shadow-sm" />
       </div>
     </div>
   );

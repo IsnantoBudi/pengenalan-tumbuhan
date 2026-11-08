@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import { PLANT_CATEGORIES, PLANT_QUIZ_ITEMS } from "@/data/plantQuizData";
-import { QuizItem, PlacedItem } from "@/types/quiz";
+import { QuizItem, PlacedItem, Category } from "@/types/quiz";
 import { HeaderControls } from "./HeaderControls";
 import { DraggableItem } from "./DraggableItem";
 import { BasketContainer } from "./BasketContainer";
@@ -28,6 +28,13 @@ function shuffleClient<T>(array: T[]): T[] {
 }
 
 export const GameBoard: React.FC = () => {
+  // Category sequence: randomized on initial client load & reset
+  const [categoryQueue, setCategoryQueue] = useState<Category[]>(() =>
+    shuffleWithSeed(PLANT_CATEGORIES, 42)
+  );
+  const [currentStageIndex, setCurrentStageIndex] = useState(0);
+
+  // All 15 items pool initially displayed
   const [remainingItems, setRemainingItems] = useState<QuizItem[]>(() =>
     shuffleWithSeed(PLANT_QUIZ_ITEMS, 42)
   );
@@ -38,9 +45,22 @@ export const GameBoard: React.FC = () => {
   const [streak, setStreak] = useState(0);
   const [feedback, setFeedback] = useState<{ text: string; isError: boolean } | null>(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [stageCelebration, setStageCelebration] = useState<{
+    completedName: string;
+    nextName?: string;
+  } | null>(null);
+
+  // Active Category
+  const activeCategory = categoryQueue[currentStageIndex] || categoryQueue[0];
+  const activeCategoryPlacedItems = placedItems.filter(
+    (item) => item.categoryId === activeCategory.id
+  );
 
   // Reset Game
   const resetGame = useCallback(() => {
+    const newQueue = shuffleClient(PLANT_CATEGORIES);
+    setCategoryQueue(newQueue);
+    setCurrentStageIndex(0);
     setRemainingItems(shuffleClient(PLANT_QUIZ_ITEMS));
     setPlacedItems([]);
     setSelectedItem(null);
@@ -48,6 +68,7 @@ export const GameBoard: React.FC = () => {
     setScore(0);
     setStreak(0);
     setFeedback(null);
+    setStageCelebration(null);
     setShowSummaryModal(false);
   }, []);
 
@@ -60,14 +81,14 @@ export const GameBoard: React.FC = () => {
   };
 
   const handleDragEnd = () => {
-    // Keep selection or reset as needed
+    // Keep selection state
   };
 
-  // Evaluate Answer
+  // Evaluate Answer against active category
   const processPlacement = (item: QuizItem, targetCategoryId: string) => {
-    const isCorrect = item.categoryId === targetCategoryId;
-    const targetCategory = PLANT_CATEGORIES.find((c) => c.id === targetCategoryId);
-    const categoryName = targetCategory ? targetCategory.name : targetCategoryId;
+    if (stageCelebration) return;
+
+    const isCorrect = item.categoryId === activeCategory.id && targetCategoryId === activeCategory.id;
 
     if (isCorrect) {
       soundEngine.playSuccess();
@@ -78,28 +99,48 @@ export const GameBoard: React.FC = () => {
       setStreak(nextStreak);
 
       setFeedback({
-        text: `🎉 Benar! Masuk ke keranjang ${categoryName}! (+${pointsEarned} Poin)`,
+        text: `🎉 Tepat sekali! Gambar bagian ${activeCategory.name} masuk keranjang! (+${pointsEarned} Poin)`,
         isError: false,
       });
 
-      const newRemaining = remainingItems.filter((i) => i.id !== item.id);
-      setRemainingItems(newRemaining);
+      const nextRemaining = remainingItems.filter((i) => i.id !== item.id);
+      setRemainingItems(nextRemaining);
       setPlacedItems((prev) => [...prev, { ...item, placedAt: Date.now() }]);
       setSelectedItem(null);
 
-      // Check level completion (all 15 items placed)
-      if (newRemaining.length === 0) {
+      // Check if current category completed (3 items placed)
+      const currentCategoryCount = activeCategoryPlacedItems.length + 1;
+
+      if (currentCategoryCount >= 3) {
+        const isFinalStage = currentStageIndex + 1 >= categoryQueue.length;
+        const nextCategory = categoryQueue[currentStageIndex + 1];
+
+        soundEngine.playFanfare();
+        setStageCelebration({
+          completedName: activeCategory.name,
+          nextName: nextCategory ? nextCategory.name : undefined,
+        });
+
         setTimeout(() => {
-          setShowSummaryModal(true);
-        }, 500);
+          if (isFinalStage) {
+            setStageCelebration(null);
+            setShowSummaryModal(true);
+          } else {
+            setCurrentStageIndex((prev) => prev + 1);
+            setStageCelebration(null);
+            setFeedback({
+              text: `🌿 Misi Baru: Kumpulkan 3 gambar bagian ${nextCategory.name}!`,
+              isError: false,
+            });
+          }
+        }, 1600);
       }
     } else {
       soundEngine.playError();
-
       setStreak(0);
       setShakingItemId(item.id);
       setFeedback({
-        text: `❌ Kurang tepat. Bukan keranjang ${categoryName}.`,
+        text: `❌ Kurang tepat! Gambar ini bukan bagian ${activeCategory.name}. Cari gambar ${activeCategory.name}!`,
         isError: true,
       });
 
@@ -127,30 +168,77 @@ export const GameBoard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-emerald-50/70 via-sky-50/40 to-amber-50/50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 text-zinc-900 dark:text-zinc-100 select-none pb-6">
-      {/* Top Header */}
-      <HeaderControls
-        score={score}
-        streak={streak}
-        onReset={resetGame}
-      />
+    <div className="relative min-h-screen flex flex-col overflow-x-hidden text-zinc-900 dark:text-zinc-100 select-none pb-6">
+      {/* ============================================================== */}
+      {/* ILUSTRASI LATAR BELAKANG PEMANDANGAN HUTAN LENGKAP             */}
+      {/* ============================================================== */}
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden transition-colors duration-500">
+        {/* Langit Hutan (Siang Cerah vs Malam Zamrud) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-sky-200 via-emerald-100/70 to-emerald-200/50 dark:from-slate-950 dark:via-teal-950 dark:to-emerald-950" />
+
+        {/* Matahari / Bulan & Awan Kartun */}
+        <div className="absolute top-12 left-10 w-24 h-24 rounded-full bg-amber-300/80 dark:bg-amber-100/30 blur-xs transition-all duration-700 dark:left-auto dark:right-16 dark:w-18 dark:h-18 dark:bg-amber-100/70" />
+        <div className="absolute top-16 left-24 w-36 h-12 bg-white/50 dark:bg-teal-900/20 rounded-full blur-xs" />
+        <div className="absolute top-24 right-20 w-48 h-14 bg-white/40 dark:bg-teal-900/15 rounded-full blur-xs" />
+
+        {/* Siluet Hutan Bukit Belakang */}
+        <svg
+          className="absolute bottom-0 w-full h-[400px] text-emerald-300/40 dark:text-emerald-950/40 preserve-3d"
+          viewBox="0 0 1440 320"
+          fill="currentColor"
+        >
+          <path d="M0,192L48,197.3C96,203,192,213,288,197.3C384,181,480,139,576,144C672,149,768,203,864,208C960,213,1056,171,1152,149.3C1248,128,1344,128,1392,128L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z" />
+        </svg>
+
+        {/* Siluet Pepohonan Rindang Hutan Tengah */}
+        <svg
+          className="absolute bottom-0 w-full h-[280px] text-emerald-400/50 dark:text-teal-900/35"
+          viewBox="0 0 1440 260"
+          fill="currentColor"
+        >
+          <path d="M0,96L30,117.3C60,139,120,181,180,181.3C240,181,300,139,360,128C420,117,480,139,540,165.3C600,192,660,224,720,208C780,192,840,128,900,117.3C960,107,1020,149,1080,165.3C1140,181,1200,171,1260,149.3C1320,128,1380,96,1410,80L1440,64L1440,260L1410,260C1380,260,1320,260,1260,260C1200,260,1140,260,1080,260C1020,260,960,260,900,260C840,260,780,260,720,260C660,260,600,260,540,260C480,260,420,260,360,260C300,260,240,260,180,260C120,260,60,260,30,260L0,260Z" />
+        </svg>
+
+        {/* Bukit Rumput Hijau Segar Depan */}
+        <svg
+          className="absolute -bottom-8 w-full h-[180px] text-emerald-500/30 dark:text-emerald-900/40"
+          viewBox="0 0 1440 180"
+          fill="currentColor"
+        >
+          <path d="M0,64L60,80C120,96,240,128,360,128C480,128,600,96,720,90.7C840,85,960,107,1080,112C1200,117,1320,107,1380,101.3L1440,96L1440,180L1380,180C1320,180,1200,180,1080,180C960,180,840,180,720,180C600,180,480,180,360,180C240,180,120,180,60,180L0,180Z" />
+        </svg>
+      </div>
+
+      {/* Header Bar */}
+      <HeaderControls score={score} streak={streak} onReset={resetGame} />
 
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-between gap-3 sm:gap-4">
-        {/* Instruction and Feedback Banner */}
-        <div className="bg-white/90 dark:bg-zinc-800/80 rounded-2xl p-2.5 sm:p-3 shadow-xs border border-zinc-200/80 dark:border-zinc-700/80 flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="text-xl sm:text-2xl">🌱</span>
-            <p className="text-xs sm:text-sm font-extrabold text-zinc-800 dark:text-zinc-100">
-              Pindahkan gambar di atas ke dalam keranjang yang tepat di bawah!
-            </p>
+        {/* ============================================================== */}
+        {/* BANNER MISI & FEEDBACK                                         */}
+        {/* ============================================================== */}
+        <div className="bg-white/85 dark:bg-emerald-950/70 backdrop-blur-md rounded-2xl p-3 shadow-md border-2 border-emerald-300/80 dark:border-emerald-700/60 flex flex-wrap items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl sm:text-3xl animate-bounce">🎯</span>
+            <div>
+              <p className="text-xs sm:text-sm font-black text-emerald-900 dark:text-emerald-100">
+                Misi Tahap {currentStageIndex + 1} dari 5: Cari 3 gambar bagian{" "}
+                <span className="text-emerald-600 dark:text-emerald-400 underline decoration-wavy decoration-emerald-400 font-extrabold text-sm sm:text-base">
+                  {activeCategory.name}
+                </span>{" "}
+                lalu masukkan ke keranjang di bawah!
+              </p>
+              <p className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400">
+                Ketuk/tarik gambar gelembung di atas ke dalam keranjang.
+              </p>
+            </div>
           </div>
 
           {feedback && (
             <div
-              className={`text-xs font-bold px-3 py-1 rounded-xl border animate-slide-down flex items-center gap-1.5 shadow-xs ${
+              className={`text-xs font-black px-3.5 py-1.5 rounded-xl border animate-slide-down flex items-center gap-1.5 shadow-sm ${
                 feedback.isError
-                  ? "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-800"
-                  : "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800"
+                  ? "bg-red-100 text-red-800 border-red-300 dark:bg-red-950/80 dark:text-red-200 dark:border-red-700"
+                  : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/80 dark:text-emerald-200 dark:border-emerald-600"
               }`}
             >
               <span>{feedback.text}</span>
@@ -159,32 +247,35 @@ export const GameBoard: React.FC = () => {
         </div>
 
         {/* ============================================================== */}
-        {/* 1. BAGIAN ATAS: KARTU-KARTU GAMBAR YANG HARUS DIPILAH (POOL)    */}
+        {/* 1. BAGIAN ATAS: PILIHAN GAMBAR (PURE GAMBAR TANPA LABEL NAMA)   */}
         {/* ============================================================== */}
         <section className="w-full">
-          <div className="flex items-center justify-between mb-1.5">
-            <h2 className="text-xs sm:text-sm font-black tracking-wider uppercase text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-              <span>🖼️</span>
-              <span>Pilihan Gambar (Tersisa: {remainingItems.length} dari 15)</span>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-xs sm:text-sm font-black tracking-wide uppercase text-emerald-900 dark:text-emerald-200 flex items-center gap-2">
+              <span className="text-base">🖼️</span>
+              <span>Pilihan Gambar Tanaman (Tersisa: {remainingItems.length} dari 15)</span>
             </h2>
+            <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              Sentuh gelembung untuk memilih
+            </span>
           </div>
 
-          <div className="bg-white/80 dark:bg-zinc-800/60 rounded-3xl p-3 sm:p-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 min-h-[120px] sm:min-h-[140px] flex items-center justify-center shadow-inner">
+          <div className="bg-white/80 dark:bg-emerald-950/60 backdrop-blur-md rounded-3xl p-3.5 sm:p-5 border-2 border-emerald-300/80 dark:border-emerald-700/60 min-h-[120px] sm:min-h-[140px] flex items-center justify-center shadow-lg">
             {remainingItems.length === 0 ? (
-              <div className="text-center py-2 animate-scale-up">
-                <span className="text-4xl block mb-1">🎉</span>
-                <p className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">
-                  Luar biasa! Semua 15 gambar sudah berhasil dipilah ke keranjang!
+              <div className="text-center py-3 animate-scale-up">
+                <span className="text-5xl block mb-2">🏆</span>
+                <p className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-300">
+                  Luar biasa! Semua 15 gambar tumbuhan sudah berhasil dipilah!
                 </p>
                 <button
                   onClick={() => setShowSummaryModal(true)}
-                  className="mt-2 px-5 py-2 rounded-xl bg-emerald-600 text-white font-black text-xs shadow-md hover:bg-emerald-700 transition-colors"
+                  className="mt-3 px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-black text-xs sm:text-sm shadow-md hover:bg-emerald-700 transition-colors"
                 >
-                  Lihat Hasil
+                  Lihat Rangkuman Hasil
                 </button>
               </div>
             ) : (
-              <div className="w-full flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+              <div className="w-full flex flex-wrap items-center justify-center gap-3 sm:gap-4">
                 {remainingItems.map((item) => (
                   <DraggableItem
                     key={item.id}
@@ -202,48 +293,93 @@ export const GameBoard: React.FC = () => {
         </section>
 
         {/* ============================================================== */}
-        {/* 2. BAGIAN BAWAH: 5 KERANJANG TUJUAN DENGAN 3 SLOT MINIATUR       */}
+        {/* 2. BAGIAN BAWAH: INDIKATOR PROGRES & 1 HERO BASKET BERGANTIAN   */}
         {/* ============================================================== */}
-        <section className="w-full mt-1">
-          <div className="flex items-center justify-between mb-1.5">
-            <h2 className="text-xs sm:text-sm font-black tracking-wider uppercase text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-              <span>🧺</span>
-              <span>Keranjang Tujuan ({placedItems.length} dari 15 Selesai)</span>
-            </h2>
-          </div>
+        <section className="w-full flex flex-col items-center gap-3">
+          {/* Stepper Indikator Progres 5 Misi */}
+          <div className="w-full max-w-xl flex items-center justify-between px-2 sm:px-4 py-2 rounded-2xl bg-white/70 dark:bg-emerald-950/50 backdrop-blur-xs border border-emerald-200 dark:border-emerald-800 shadow-xs">
+            {categoryQueue.map((cat, idx) => {
+              const isPast = idx < currentStageIndex;
+              const isCurrent = idx === currentStageIndex;
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3.5">
-            {PLANT_CATEGORIES.map((category) => {
-              const categoryPlacedItems = placedItems.filter(
-                (item) => item.categoryId === category.id
-              );
               return (
-                <BasketContainer
-                  key={category.id}
-                  category={category}
-                  placedItems={categoryPlacedItems}
-                  selectedItem={selectedItem}
-                  onDropItem={handleDropItem}
-                  onPlaceSelectedItem={handlePlaceSelectedItem}
-                />
+                <div key={cat.id} className="flex items-center gap-1.5 sm:gap-2">
+                  <div
+                    className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black transition-all ${
+                      isPast
+                        ? "bg-emerald-500 text-white shadow-xs"
+                        : isCurrent
+                        ? "bg-amber-400 text-amber-950 ring-3 ring-amber-300/80 scale-105 shadow-md animate-pulse"
+                        : "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                    }`}
+                  >
+                    <span>{isPast ? "✓" : isCurrent ? "⭐" : "🔒"}</span>
+                    <span className="hidden sm:inline">{cat.name}</span>
+                  </div>
+
+                  {idx < categoryQueue.length - 1 && (
+                    <div
+                      className={`h-1 w-3 sm:w-6 rounded-full ${
+                        isPast
+                          ? "bg-emerald-500"
+                          : "bg-zinc-300 dark:bg-zinc-700"
+                      }`}
+                    />
+                  )}
+                </div>
               );
             })}
           </div>
+
+          {/* Hero Basket Container (Tampil Satu per Satu Bergantian) */}
+          <div className="w-full flex justify-center relative">
+            <BasketContainer
+              category={activeCategory}
+              placedItems={activeCategoryPlacedItems}
+              selectedItem={selectedItem}
+              isHero={true}
+              onDropItem={handleDropItem}
+              onPlaceSelectedItem={handlePlaceSelectedItem}
+            />
+
+            {/* Efek Perayaan Antar Tahap Keranjang Selesai (~1.5 detik) */}
+            {stageCelebration && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 dark:bg-emerald-950/90 backdrop-blur-sm rounded-3xl animate-scale-up border-4 border-amber-400 shadow-2xl p-6 text-center">
+                <div>
+                  <span className="text-5xl sm:text-6xl block mb-2 animate-bounce">
+                    🎉
+                  </span>
+                  <h3 className="text-lg sm:text-2xl font-black text-emerald-800 dark:text-emerald-200">
+                    Hebat! Misi Keranjang {stageCelebration.completedName} Selesai!
+                  </h3>
+                  {stageCelebration.nextName ? (
+                    <p className="text-xs sm:text-sm font-bold text-zinc-600 dark:text-zinc-300 mt-1">
+                      Bersiap menuju keranjang <b>{stageCelebration.nextName}</b>...
+                    </p>
+                  ) : (
+                    <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+                      Semua misi keranjang telah tuntas!
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </section>
 
-        {/* Footer Helper */}
-        <footer className="pt-2 flex flex-wrap items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 gap-2 border-t border-zinc-200/80 dark:border-zinc-800/80">
+        {/* Footer Navigasi & Tips Pembelajaran */}
+        <footer className="pt-2 flex flex-wrap items-center justify-between text-xs font-semibold text-emerald-900/80 dark:text-emerald-200/80 gap-2 border-t border-emerald-300/40 dark:border-emerald-800/40">
           <div className="flex items-center gap-3">
-            <span>👆 <b>Sentuh:</b> Ketuk gambar di atas lalu ketuk keranjang di bawah.</span>
-            <span className="hidden sm:inline">🖱️ <b>Tarik:</b> Geser gambar ke keranjang.</span>
+            <span>👆 <b>Sentuh:</b> Ketuk gelembung gambar lalu ketuk keranjang.</span>
+            <span className="hidden sm:inline">🖱️ <b>Tarik:</b> Geser gelembung langsung ke keranjang.</span>
           </div>
           <div>
-            <span>IPA SD/MI - Memilah Bagian Tumbuhan</span>
+            <span>IPA SD/MI - Mengenal Bagian Tubuh Tumbuhan</span>
           </div>
         </footer>
       </main>
 
-      {/* Celebration Modal */}
+      {/* Celebration Modal Akhir Permainan */}
       <EducationSummaryModal
         isOpen={showSummaryModal}
         score={score}
