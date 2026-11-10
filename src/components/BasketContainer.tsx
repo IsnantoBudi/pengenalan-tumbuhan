@@ -69,8 +69,8 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
       aria-label={`Keranjang ${category.name}`}
       className={`relative rounded-3xl transition-all duration-300 flex flex-col items-center justify-between select-none ${
         isHero
-          ? "w-full max-w-lg p-4 sm:p-5 min-h-[230px] sm:min-h-[270px] shadow-xl border-4"
-          : "p-3 sm:p-4 min-h-[190px] sm:min-h-[230px] shadow-sm hover:shadow-md border-3"
+          ? "w-full max-w-lg p-3 sm:p-4 min-h-[200px] sm:min-h-[230px] shadow-xl border-4"
+          : "p-2.5 sm:p-3 min-h-[170px] sm:min-h-[200px] shadow-sm hover:shadow-md border-3"
       } ${category.color.bg} ${category.color.border} ${
         isFull
           ? "border-solid bg-emerald-50/70 dark:bg-emerald-950/40 ring-4 ring-emerald-500/50 shadow-emerald-500/20"
@@ -80,12 +80,12 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
       }`}
     >
       {/* Category Name Label & Counter Badge */}
-      <div className="w-full flex items-center justify-between gap-2 mb-2">
+      <div className="w-full flex items-center justify-between gap-2 mb-1.5">
         <span
           className={`inline-flex items-center gap-1.5 font-black rounded-full shadow-xs ${
             isHero
-              ? "text-sm sm:text-base px-4 py-1.5"
-              : "text-xs sm:text-sm px-3 py-1"
+              ? "text-xs sm:text-sm px-3.5 py-1"
+              : "text-xs px-3 py-0.5"
           } ${category.color.badge}`}
         >
           <span>🧺</span>
@@ -95,8 +95,8 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
         <span
           className={`font-black rounded-xl border flex items-center gap-1 ${
             isHero
-              ? "text-xs sm:text-sm px-3 py-1"
-              : "text-[11px] sm:text-xs px-2 py-0.5"
+              ? "text-xs px-2.5 py-1"
+              : "text-[11px] px-2 py-0.5"
           } ${
             isFull
               ? "bg-emerald-500 text-white border-emerald-600 animate-bounce"
@@ -110,14 +110,14 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
       {/* Basket Visual PNG Illustration */}
       <div
         className={`relative flex items-center justify-center my-1 pointer-events-none transition-transform duration-200 ${
-          isHero ? "w-44 h-28 sm:w-56 sm:h-36" : "w-28 h-20 sm:w-36 sm:h-24"
+          isHero ? "w-36 h-24 sm:w-48 sm:h-28" : "w-24 h-16 sm:w-32 sm:h-20"
         }`}
       >
         <Image
           src={`${category.basketImage}?v=2`}
           alt={`Keranjang ${category.name}`}
-          width={224}
-          height={144}
+          width={192}
+          height={112}
           priority={isHero}
           unoptimized
           className="w-full h-full object-contain drop-shadow-md select-none"
@@ -125,24 +125,24 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
       </div>
 
       {/* 3 Slot Miniatur Terbuka (Slot Indikator Item yang Sudah Masuk) */}
-      <div className="w-full mt-2 pt-2.5 border-t border-zinc-300/80 dark:border-zinc-700/80 flex items-center justify-center gap-2.5 sm:gap-3.5">
+      <div className="w-full mt-1.5 pt-2 border-t border-zinc-300/80 dark:border-zinc-700/80 flex items-center justify-center gap-2 sm:gap-3">
         {[0, 1, 2].map((slotIndex) => {
           const item = placedItems[slotIndex];
           if (item) {
             return (
               <div
                 key={slotIndex}
-                className={`relative rounded-2xl bg-white dark:bg-zinc-800 p-1.5 shadow-md border-2 border-emerald-500 flex items-center justify-center animate-scale-up ${
+                className={`relative rounded-xl bg-white dark:bg-zinc-800 p-1 shadow-md border-2 border-emerald-500 flex items-center justify-center animate-scale-up ${
                   isHero
-                    ? "w-12 h-12 sm:w-14 sm:h-14"
-                    : "w-8 h-8 sm:w-10 sm:h-10"
+                    ? "w-10 h-10 sm:w-12 sm:h-12"
+                    : "w-8 h-8 sm:w-9 sm:h-9"
                 }`}
               >
                 <Image
                   src={`${item.imageSrc}?v=2`}
                   alt={item.name}
-                  width={48}
-                  height={48}
+                  width={44}
+                  height={44}
                   unoptimized
                   className="w-full h-full object-contain drop-shadow-xs select-none"
                 />
@@ -152,10 +152,10 @@ export const BasketContainer: React.FC<BasketContainerProps> = ({
           return (
             <div
               key={slotIndex}
-              className={`rounded-2xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 bg-white/50 dark:bg-zinc-800/40 flex items-center justify-center font-black text-zinc-400 dark:text-zinc-500 ${
+              className={`rounded-xl border-2 border-dashed border-zinc-300 dark:border-zinc-600 bg-white/50 dark:bg-zinc-800/40 flex items-center justify-center font-black text-zinc-400 dark:text-zinc-500 ${
                 isHero
-                  ? "w-12 h-12 sm:w-14 sm:h-14 text-sm"
-                  : "w-8 h-8 sm:w-10 sm:h-10 text-xs"
+                  ? "w-10 h-10 sm:w-12 sm:h-12 text-xs sm:text-sm"
+                  : "w-8 h-8 sm:w-9 sm:h-9 text-xs"
               }`}
             >
               {slotIndex + 1}

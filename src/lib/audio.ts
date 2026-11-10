@@ -86,6 +86,31 @@ class AudioManager {
     return this.speechEnabled;
   }
 
+  // Play a crisp, wooden/bubble click for UI buttons
+  public playClick() {
+    if (!this.sfxEnabled) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    const now = ctx.currentTime;
+
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(320, now + 0.045);
+
+    gain.gain.setValueAtTime(0.18, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.05);
+  }
+
   // Play a gentle pop when touching/selecting an item
   public playPop() {
     if (!this.sfxEnabled) return;
@@ -219,9 +244,10 @@ class AudioManager {
     });
   }
 
-  // Indonesian Text-to-Speech narration
-  public speak(text: string) {
+  // Indonesian Text-to-Speech narration with onEnd callback support
+  public speak(text: string, onEnd?: () => void) {
     if (!this.speechEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) {
+      if (onEnd) onEnd();
       return;
     }
 
@@ -231,21 +257,43 @@ class AudioManager {
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "id-ID";
       utterance.rate = 0.95; // slightly slower for clear classroom diction
-      utterance.pitch = 1.1; // friendly tone
+      utterance.pitch = 1.05; // friendly tone
 
       // Pick Indonesian voice if available
       const voices = window.speechSynthesis.getVoices();
       const indonesianVoice = voices.find(
-        (v) => v.lang.toLowerCase().includes("id") || v.lang.toLowerCase().includes("indonesia")
+        (v) =>
+          v.lang.toLowerCase().includes("id") ||
+          v.lang.toLowerCase().includes("indonesia") ||
+          v.name.toLowerCase().includes("indonesian")
       );
       if (indonesianVoice) {
         utterance.voice = indonesianVoice;
       }
 
+      if (onEnd) {
+        let called = false;
+        const safeCallback = () => {
+          if (!called) {
+            called = true;
+            onEnd();
+          }
+        };
+        utterance.onend = safeCallback;
+        utterance.onerror = safeCallback;
+      }
+
       window.speechSynthesis.speak(utterance);
     } catch {
-      // Graceful fallback if speech synthesis fails
+      if (onEnd) onEnd();
     }
+  }
+
+  // Promise-based speak to sequence announcements sequentially
+  public speakAsync(text: string): Promise<void> {
+    return new Promise((resolve) => {
+      this.speak(text, resolve);
+    });
   }
 }
 

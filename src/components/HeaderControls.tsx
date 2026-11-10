@@ -7,12 +7,14 @@ interface HeaderControlsProps {
   score: number;
   streak: number;
   onReset: () => void;
+  onBackToMenu?: () => void;
 }
 
 export const HeaderControls: React.FC<HeaderControlsProps> = ({
   score,
   streak,
   onReset,
+  onBackToMenu,
 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isAudioOn, setIsAudioOn] = useState(true);
@@ -75,8 +77,23 @@ export const HeaderControls: React.FC<HeaderControlsProps> = ({
   return (
     <header className="w-full bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md border-b border-emerald-200/60 dark:border-emerald-900/60 shadow-xs sticky top-0 z-30 px-3 py-2 sm:px-6 sm:py-2.5 transition-colors">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
-        {/* App Title */}
+        {/* App Title & Back button */}
         <div className="flex items-center gap-2.5">
+          {onBackToMenu && (
+            <button
+              type="button"
+              onClick={() => {
+                soundEngine.playClick();
+                onBackToMenu();
+              }}
+              aria-label="Kembali ke menu utama"
+              className="px-2.5 py-1.5 rounded-xl bg-emerald-100 hover:bg-emerald-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-emerald-900 dark:text-emerald-300 font-extrabold text-xs flex items-center gap-1 transition-colors cursor-pointer border border-emerald-300/80"
+              title="Menu Utama"
+            >
+              <span>🏠</span>
+              <span className="hidden sm:inline">Menu</span>
+            </button>
+          )}
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-green-400 flex items-center justify-center shadow-xs text-white font-black text-lg select-none">
             🌲
           </div>
