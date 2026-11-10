@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { soundEngine } from "@/lib/audio";
 import { launchConfetti } from "@/lib/confetti";
 import {
@@ -52,6 +52,74 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
 
   const currentShape: TracingShape = PLANT_TRACING_SHAPES[currentShapeIdx];
   const activeSegment: TracingSegment | undefined = currentShape.segments[activeSegmentIdx];
+
+  // Collect all waypoints that must remain visible (all previously completed numbers + active segment numbers)
+  const visibleWaypoints = useMemo(() => {
+    const wpMap = new Map<
+      number,
+      {
+        number: number;
+        x: number;
+        y: number;
+        isCompleted: boolean;
+        isActiveStart: boolean;
+        isActiveEnd: boolean;
+      }
+    >();
+
+    // 1. Add all completed segments' waypoints so previous numbers never disappear
+    currentShape.segments.forEach((seg) => {
+      const isSegCompleted = completedSegmentIds.includes(seg.id);
+      if (isSegCompleted || isShapeCompleted) {
+        wpMap.set(seg.startWaypoint, {
+          number: seg.startWaypoint,
+          x: seg.startPoint.x,
+          y: seg.startPoint.y,
+          isCompleted: true,
+          isActiveStart: false,
+          isActiveEnd: false,
+        });
+        wpMap.set(seg.endWaypoint, {
+          number: seg.endWaypoint,
+          x: seg.endPoint.x,
+          y: seg.endPoint.y,
+          isCompleted: true,
+          isActiveStart: false,
+          isActiveEnd: false,
+        });
+      }
+    });
+
+    // 2. Add or update active segment waypoints (if not fully finished yet)
+    if (!isShapeCompleted && activeSegment) {
+      // Start waypoint of active segment
+      if (!wpMap.has(activeSegment.startWaypoint)) {
+        wpMap.set(activeSegment.startWaypoint, {
+          number: activeSegment.startWaypoint,
+          x: activeSegment.startPoint.x,
+          y: activeSegment.startPoint.y,
+          isCompleted: false,
+          isActiveStart: true,
+          isActiveEnd: false,
+        });
+      } else {
+        const existing = wpMap.get(activeSegment.startWaypoint)!;
+        existing.isActiveStart = true;
+      }
+
+      // End waypoint of active segment (destination target)
+      wpMap.set(activeSegment.endWaypoint, {
+        number: activeSegment.endWaypoint,
+        x: activeSegment.endPoint.x,
+        y: activeSegment.endPoint.y,
+        isCompleted: false,
+        isActiveStart: false,
+        isActiveEnd: true,
+      });
+    }
+
+    return Array.from(wpMap.values()).sort((a, b) => a.number - b.number);
+  }, [currentShape, completedSegmentIds, isShapeCompleted, activeSegment]);
 
   // Fullscreen listener
   useEffect(() => {
@@ -588,44 +656,70 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
                     filter="url(#brushGlow)"
                   />
                 )}
-
-                {/* Start Waypoint Number Circle (Red with white number) */}
-                <g
-                  transform={`translate(${activeSegment.startPoint.x}, ${activeSegment.startPoint.y})`}
-                  className="animate-pulse-waypoint pointer-events-none"
-                >
-                  <circle r={22} fill="#ef4444" stroke="#ffffff" strokeWidth={3.5} />
-                  <text
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill="#ffffff"
-                    fontSize="18"
-                    fontWeight="900"
-                    fontFamily="sans-serif"
-                  >
-                    {activeSegment.startWaypoint}
-                  </text>
-                </g>
-
-                {/* End Waypoint Number Circle */}
-                <g
-                  transform={`translate(${activeSegment.endPoint.x}, ${activeSegment.endPoint.y})`}
-                  className="pointer-events-none"
-                >
-                  <circle r={22} fill="#dc2626" stroke="#ffffff" strokeWidth={3.5} />
-                  <text
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fill="#ffffff"
-                    fontSize="18"
-                    fontWeight="900"
-                    fontFamily="sans-serif"
-                  >
-                    {activeSegment.endWaypoint}
-                  </text>
-                </g>
               </g>
             )}
+
+            {/* 5. Waypoint Number Badges (All active and previously completed numbers remain visible!) */}
+            {visibleWaypoints.map((wp) => {
+              const isPulsing = wp.isActiveEnd || (wp.isActiveStart && activeProgressSampleIdx === 0);
+
+              return (
+                <g
+                  key={`wp-${wp.number}`}
+                  transform={`translate(${wp.x}, ${wp.y})`}
+                  className={`pointer-events-none ${isPulsing ? "animate-pulse-waypoint" : ""}`}
+                >
+                  {/* Outer animated ring for active destination */}
+                  {wp.isActiveEnd && (
+                    <circle
+                      r={27}
+                      fill="none"
+                      stroke="#f97316"
+                      strokeWidth={3}
+                      strokeDasharray="4 4"
+                      className="animate-spin"
+                      style={{ animationDuration: "6s", transformOrigin: "0 0" }}
+                    />
+                  )}
+
+                  {/* Main Red Circle */}
+                  <circle
+                    r={22}
+                    fill={wp.isCompleted ? "#dc2626" : wp.isActiveEnd ? "#ea580c" : "#ef4444"}
+                    stroke="#ffffff"
+                    strokeWidth={3.5}
+                    filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))"
+                  />
+
+                  {/* Number text */}
+                  <text
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="#ffffff"
+                    fontSize="18"
+                    fontWeight="900"
+                    fontFamily="sans-serif"
+                  >
+                    {wp.number}
+                  </text>
+
+                  {/* Completed Checkmark badge on top right */}
+                  {wp.isCompleted && (
+                    <g transform="translate(13, -13)">
+                      <circle r={7.5} fill="#16a34a" stroke="#ffffff" strokeWidth={1.5} />
+                      <path
+                        d="M -3.5 0 L -1 2.5 L 3.5 -2"
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeWidth={1.6}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </g>
+                  )}
+                </g>
+              );
+            })}
 
             {/* 5. Rainbow Sparkle Particles on pointer movement */}
             {sparkles.map((sp) => (
