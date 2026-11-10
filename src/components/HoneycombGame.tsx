@@ -161,8 +161,8 @@ export const HoneycombGame: React.FC<HoneycombGameProps> = ({ onBackToMenu }) =>
     if (poppingItemId || isGameOver || isVictoryModalOpen || isAdvancing) return;
 
     if (tile.isTarget) {
-      // Correct target clicked!
-      soundEngine.playSuccess();
+      // Correct target clicked - Play loud, cheerful sparkle chime (cring-cring)
+      soundEngine.playSparkleChime();
       setPoppingItemId(tile.item.id);
       setScore((prev) => prev + 100);
 

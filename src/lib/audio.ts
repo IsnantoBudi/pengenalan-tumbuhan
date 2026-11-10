@@ -155,7 +155,7 @@ class AudioManager {
 
       osc.frequency.setValueAtTime(freq, start);
 
-      gain.gain.setValueAtTime(0.18, start);
+      gain.gain.setValueAtTime(0.24, start);
       gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
 
       osc.connect(gain);
@@ -163,6 +163,50 @@ class AudioManager {
 
       osc.start(start);
       osc.stop(start + duration + 0.05);
+    });
+  }
+
+  // Play a loud, cheerful, sparkling double "CRING-CRING! ✨" bell chime
+  public playSparkleChime() {
+    if (!this.sfxEnabled) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+
+    // Harmonic bell partials: [frequency, startTime, duration, volume, waveType]
+    const sparkles = [
+      // First "Cring" (bright G6 + G7 bell sparkle)
+      { freq: 1567.98, time: 0, dur: 0.28, vol: 0.35, type: "sine" as OscillatorType },
+      { freq: 3135.96, time: 0, dur: 0.22, vol: 0.24, type: "triangle" as OscillatorType },
+      { freq: 4703.94, time: 0.005, dur: 0.16, vol: 0.16, type: "sine" as OscillatorType },
+
+      // Second "CRING!" (higher, louder, sparkling shimmer: C7 + E7 + C8)
+      { freq: 2093.00, time: 0.085, dur: 0.42, vol: 0.42, type: "sine" as OscillatorType },
+      { freq: 2637.02, time: 0.09, dur: 0.38, vol: 0.32, type: "triangle" as OscillatorType },
+      { freq: 4186.01, time: 0.095, dur: 0.30, vol: 0.26, type: "sine" as OscillatorType },
+      { freq: 5274.04, time: 0.10, dur: 0.22, vol: 0.18, type: "sine" as OscillatorType },
+    ];
+
+    sparkles.forEach((s) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = s.type;
+      const startAt = now + s.time;
+
+      osc.frequency.setValueAtTime(s.freq, startAt);
+
+      // Fast crystalline attack + bell decay
+      gain.gain.setValueAtTime(0.001, startAt);
+      gain.gain.linearRampToValueAtTime(s.vol, startAt + 0.008);
+      gain.gain.exponentialRampToValueAtTime(0.001, startAt + s.dur);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(startAt);
+      osc.stop(startAt + s.dur + 0.02);
     });
   }
 
