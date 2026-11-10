@@ -90,3 +90,40 @@
 .animate-pop-out {
   animation: popOut 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
+
+.bg-grid-paper {
+  background-color: #fbfcfe;
+  background-image: 
+    linear-gradient(#e2e8f0 1.5px, transparent 1.5px),
+    linear-gradient(90deg, #e2e8f0 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+}
+
+@keyframes pulseWaypoint {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.16); }
+}
+
+.animate-pulse-waypoint {
+  animation: pulseWaypoint 1.2s ease-in-out infinite;
+}
+
+@keyframes arrowFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.85; }
+  50% { transform: translateY(-2px) scale(1.15); opacity: 1; }
+}
+
+.animate-arrow-bounce {
+  animation: arrowFloat 1s ease-in-out infinite;
+}
+
+@keyframes watercolorWash {
+  0% { opacity: 0; transform: scale(0.92); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.animate-watercolor {
+  animation: watercolorWash 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+

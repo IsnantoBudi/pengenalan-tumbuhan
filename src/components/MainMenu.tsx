@@ -5,7 +5,7 @@ import Image from "next/image";
 import { soundEngine } from "@/lib/audio";
 
 interface MainMenuProps {
-  onSelectMode: (mode: "basket" | "honeycomb") => void;
+  onSelectMode: (mode: "basket" | "honeycomb" | "tracing") => void;
 }
 
 export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
@@ -18,7 +18,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
     soundEngine.setAudioEnabled(next);
   };
 
-  const handleSelect = (mode: "basket" | "honeycomb") => {
+  const handleSelect = (mode: "basket" | "honeycomb" | "tracing") => {
     soundEngine.playClick();
     soundEngine.startBgm();
     onSelectMode(mode);
@@ -86,9 +86,9 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
       </div>
 
       {/* Game Mode Selection Cards */}
-      <main className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 max-w-4xl mx-auto w-full mb-8">
+      <main className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 max-w-6xl mx-auto w-full mb-8">
         {/* Card 1: Pilah Keranjang (Original Drag & Drop) */}
-        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-[0_12px_24px_rgba(0,0,0,0.2)] border-3 border-emerald-300 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-2xl">
+        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-[0_12px_24px_rgba(0,0,0,0.2)] border-3 border-emerald-300 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-2xl">
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="px-3 py-1 bg-emerald-100 text-emerald-800 font-extrabold text-xs rounded-full">
@@ -96,44 +96,44 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
               </span>
               <span className="text-3xl">🧺</span>
             </div>
-            <div className="relative w-full h-32 sm:h-36 mb-4 flex items-center justify-center bg-gradient-to-tr from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100 p-2">
+            <div className="relative w-full h-28 sm:h-32 mb-4 flex items-center justify-center bg-gradient-to-tr from-emerald-50 to-teal-50 rounded-2xl border border-emerald-100 p-2">
               <Image
                 src="/assets/baskets/keranjang-buah.png"
                 alt="Keranjang Buah"
-                width={120}
-                height={100}
+                width={100}
+                height={85}
                 className="object-contain drop-shadow-md"
               />
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-100 mb-1">
+            <h3 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-zinc-100 mb-1">
               Pilah Keranjang
             </h3>
-            <p className="text-zinc-600 dark:text-zinc-300 text-sm font-medium mb-6">
-              Tarik atau sentuh bagian tumbuhan yang diminta ke dalam keranjang yang tepat!
+            <p className="text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm font-medium mb-5">
+              Tarik atau sentuh bagian tumbuhan ke keranjang yang cocok!
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => handleSelect("basket")}
-            className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-base shadow-[0_5px_0_#15803d] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-black text-sm shadow-[0_5px_0_#15803d] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Mulai Bermain</span>
-            <span className="text-lg">▶</span>
+            <span className="text-base">▶</span>
           </button>
         </div>
 
-        {/* Card 2: Sarang Lebah (New Honeycomb Game) */}
-        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 shadow-[0_12px_24px_rgba(0,0,0,0.2)] border-3 border-amber-300 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-2xl">
+        {/* Card 2: Sarang Lebah (Honeycomb Game) */}
+        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-[0_12px_24px_rgba(0,0,0,0.2)] border-3 border-amber-300 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-2xl">
           <div>
             <div className="flex items-center justify-between mb-4">
               <span className="px-3 py-1 bg-amber-100 text-amber-900 font-extrabold text-xs rounded-full">
-                MODE BARU 🌟
+                MODE TANTANGAN 🌟
               </span>
               <span className="text-3xl">🍯</span>
             </div>
-            <div className="relative w-full h-32 sm:h-36 mb-4 flex items-center justify-center bg-gradient-to-tr from-amber-50 to-orange-50 rounded-2xl border border-amber-100 p-2 gap-2">
-              <div className="relative w-16 h-18 sm:w-20 sm:h-22">
+            <div className="relative w-full h-28 sm:h-32 mb-4 flex items-center justify-center bg-gradient-to-tr from-amber-50 to-orange-50 rounded-2xl border border-amber-100 p-2 gap-2">
+              <div className="relative w-14 h-16 sm:w-16 sm:h-18">
                 <Image
                   src="/assets/items/buah1.png"
                   alt="Buah"
@@ -142,7 +142,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
                   className="object-contain drop-shadow-md"
                 />
               </div>
-              <div className="relative w-16 h-18 sm:w-20 sm:h-22">
+              <div className="relative w-14 h-16 sm:w-16 sm:h-18">
                 <Image
                   src="/assets/items/bunga1.png"
                   alt="Bunga"
@@ -152,21 +152,53 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
                 />
               </div>
             </div>
-            <h3 className="text-xl sm:text-2xl font-black text-zinc-900 dark:text-zinc-100 mb-1">
-              Sarang Lebah Tumbuhan
+            <h3 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-zinc-100 mb-1">
+              Sarang Lebah
             </h3>
-            <p className="text-zinc-600 dark:text-zinc-300 text-sm font-medium mb-6">
-              Dengarkan suara arahan, lalu ketuk seluruh bagian tumbuhan tersembunyi di sarang lebah!
+            <p className="text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm font-medium mb-5">
+              Dengarkan suara arahan, temukan bagian tumbuhan tersembunyi!
             </p>
           </div>
 
           <button
             type="button"
             onClick={() => handleSelect("honeycomb")}
-            className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-base shadow-[0_5px_0_#c2410c] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
+            className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-sm shadow-[0_5px_0_#c2410c] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Mulai Bermain</span>
-            <span className="text-lg">▶</span>
+            <span className="text-base">▶</span>
+          </button>
+        </div>
+
+        {/* Card 3: Menggambar Garis Tumbuhan (Tracing Game) */}
+        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-[0_12px_24px_rgba(0,0,0,0.2)] border-3 border-rose-300 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-2xl">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="px-3 py-1 bg-rose-100 text-rose-900 font-extrabold text-xs rounded-full">
+                KREATIF & MENGGAMBAR 🎨
+              </span>
+              <span className="text-3xl">✏️</span>
+            </div>
+            <div className="relative w-full h-28 sm:h-32 mb-4 flex items-center justify-center bg-gradient-to-tr from-rose-50 to-red-50 rounded-2xl border border-rose-100 p-2 gap-3 text-4xl">
+              <span className="animate-bounce">🍎</span>
+              <span className="animate-pulse">🍃</span>
+              <span className="animate-bounce" style={{ animationDelay: "0.2s" }}>🌸</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-zinc-100 mb-1">
+              Tebalkan Garis Tumbuhan
+            </h3>
+            <p className="text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm font-medium mb-5">
+              Tarik garis urut dari nomor 1 ke 2! Lengkapi apel, daun, batang, bunga, & akar.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleSelect("tracing")}
+            className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black text-sm shadow-[0_5px_0_#9f1239] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Mulai Menggambar</span>
+            <span className="text-base">▶</span>
           </button>
         </div>
       </main>

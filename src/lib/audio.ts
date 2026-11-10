@@ -288,6 +288,120 @@ class AudioManager {
     });
   }
 
+  // Play a soft gliding pencil/brush stroke whoosh
+  public playBrushStroke() {
+    if (!this.sfxEnabled) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const filter = ctx.createBiquadFilter();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(380, now);
+      osc.frequency.exponentialRampToValueAtTime(540, now + 0.08);
+
+      filter.type = "bandpass";
+      filter.frequency.setValueAtTime(800, now);
+      filter.Q.setValueAtTime(2.5, now);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.linearRampToValueAtTime(0.08, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now);
+      osc.stop(now + 0.1);
+    } catch {
+      // AudioContext fallback
+    }
+  }
+
+  // Play a joyful, rhythmic children applause and cheering sound effect
+  public playApplause() {
+    if (!this.sfxEnabled) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    try {
+      const now = ctx.currentTime;
+      const clapCount = 14;
+
+      // Layered synthesized handclaps with varied timing & pitch
+      for (let i = 0; i < clapCount; i++) {
+        const clapTime = now + (i * 0.08) + (Math.random() * 0.04);
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        const filter = ctx.createBiquadFilter();
+
+        osc.type = "triangle";
+        const freq = 600 + Math.random() * 800;
+        osc.frequency.setValueAtTime(freq, clapTime);
+        osc.frequency.exponentialRampToValueAtTime(120, clapTime + 0.045);
+
+        filter.type = "bandpass";
+        filter.frequency.setValueAtTime(1200 + Math.random() * 600, clapTime);
+        filter.Q.setValueAtTime(1.8, clapTime);
+
+        gain.gain.setValueAtTime(0.18 + Math.random() * 0.08, clapTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, clapTime + 0.05);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(clapTime);
+        osc.stop(clapTime + 0.06);
+      }
+
+      // Cheerful triumph bells layered on top
+      const chimeNotes = [783.99, 1046.5, 1318.51, 1567.98]; // G5, C6, E6, G6
+      chimeNotes.forEach((freq, idx) => {
+        const chimeStart = now + 0.25 + idx * 0.1;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, chimeStart);
+
+        gain.gain.setValueAtTime(0.2, chimeStart);
+        gain.gain.exponentialRampToValueAtTime(0.001, chimeStart + 0.45);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(chimeStart);
+        osc.stop(chimeStart + 0.5);
+      });
+    } catch {
+      // AudioContext fallback
+    }
+  }
+
+  // Speak Indonesian number clearly
+  public speakNumber(num: number) {
+    const numberWords: Record<number, string> = {
+      1: "Satu",
+      2: "Dua",
+      3: "Tiga",
+      4: "Empat",
+      5: "Lima",
+      6: "Enam",
+      7: "Tujuh",
+      8: "Delapan",
+      9: "Sembilan",
+      10: "Sepuluh",
+    };
+    const word = numberWords[num] || String(num);
+    this.speak(word);
+  }
+
   // Indonesian Text-to-Speech narration with onEnd callback support
   public speak(text: string, onEnd?: () => void) {
     if (!this.speechEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) {
