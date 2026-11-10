@@ -246,167 +246,161 @@ export const GameBoard: React.FC<GameBoardProps> = ({ onBackToMenu }) => {
         onBackToMenu={onBackToMenu}
       />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-2 sm:p-3 lg:p-4 flex flex-col justify-between gap-2 sm:gap-3">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-2 py-1.5 sm:px-4 sm:py-2 flex flex-col justify-between gap-1.5 sm:gap-2">
         {/* ============================================================== */}
-        {/* ADAPTIVE SPLIT WORKSPACE: 1 Kolom di Mobile, 2 Kolom di PID    */}
+        {/* 1. BARIS ATAS: BANNER MISI + STEPPER RINGKAS DALAM 1 BARIS      */}
         {/* ============================================================== */}
-        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-3 lg:gap-5 items-start">
-          {/* ============================================================ */}
-          {/* SISI KIRI (7 Kolom di Layar Lebar/PID): KOLEKSI GAMBAR       */}
-          {/* ============================================================ */}
-          <section className="w-full lg:col-span-7 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-xs sm:text-sm font-black tracking-wide uppercase text-emerald-900 dark:text-emerald-200 flex items-center gap-2">
-                <span className="text-base">🖼️</span>
-                <span>Pilihan Gambar ({remainingItems.length} tersisa)</span>
-              </h2>
-              <span className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
-                Sentuh gelembung untuk memilih
-              </span>
+        <section className="w-full flex flex-wrap items-center justify-between gap-2 bg-white/85 dark:bg-emerald-950/70 backdrop-blur-md rounded-2xl px-3 py-1.5 sm:px-4 sm:py-2 shadow-xs border-2 border-emerald-300/80 dark:border-emerald-700/60">
+          {/* Target Misi */}
+          <div className="flex items-center gap-2">
+            <span className="text-xl sm:text-2xl animate-bounce">🎯</span>
+            <div>
+              <p className="text-xs sm:text-sm font-black text-emerald-900 dark:text-emerald-100">
+                Tahap {currentStageIndex + 1}/5: Masukkan 3 bagian{" "}
+                <span className="text-emerald-600 dark:text-emerald-400 underline decoration-wavy font-extrabold text-sm sm:text-base">
+                  {activeCategory.name}
+                </span>{" "}
+                ke keranjang!
+              </p>
             </div>
+          </div>
 
-            <div className="bg-white/80 dark:bg-emerald-950/60 backdrop-blur-md rounded-3xl p-3 sm:p-4 border-2 border-emerald-300/80 dark:border-emerald-700/60 min-h-[140px] flex items-center justify-center shadow-lg">
-              {remainingItems.length === 0 ? (
-                <div className="text-center py-4 animate-scale-up">
-                  <span className="text-5xl block mb-2">🏆</span>
-                  <p className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-300">
-                    Luar biasa! Semua 15 gambar tumbuhan sudah berhasil dipilah!
-                  </p>
-                  <button
-                    onClick={() => setShowSummaryModal(true)}
-                    className="mt-3 px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-black text-xs sm:text-sm shadow-md hover:bg-emerald-700 transition-colors cursor-pointer"
+          {/* Stepper Indikator 5 Misi */}
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            {categoryQueue.map((cat, idx) => {
+              const isPast = idx < currentStageIndex;
+              const isCurrent = idx === currentStageIndex;
+
+              return (
+                <div key={cat.id} className="flex items-center gap-1">
+                  <div
+                    className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-black transition-all ${
+                      isPast
+                        ? "bg-emerald-500 text-white shadow-xs"
+                        : isCurrent
+                        ? "bg-amber-400 text-amber-950 ring-2 ring-amber-300/80 scale-105 shadow-md animate-pulse"
+                        : "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                    }`}
                   >
-                    Lihat Rangkuman Hasil
-                  </button>
-                </div>
-              ) : (
-                <div className="w-full grid grid-cols-5 gap-2 sm:gap-2.5 justify-items-center">
-                  {remainingItems.map((item) => (
-                    <DraggableItem
-                      key={item.id}
-                      item={item}
-                      isSelected={selectedItem?.id === item.id}
-                      isShaking={shakingItemId === item.id}
-                      onSelect={handleSelectItem}
-                      onDragStart={handleDragStart}
-                      onDragEnd={handleDragEnd}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
+                    <span>{isPast ? "✓" : isCurrent ? "⭐" : "🔒"}</span>
+                    <span className="hidden md:inline">{cat.name}</span>
+                  </div>
 
-          {/* ============================================================ */}
-          {/* SISI KANAN (5 Kolom di Layar Lebar/PID): MISI, STEPPER, HERO */}
-          {/* ============================================================ */}
-          <section className="w-full lg:col-span-5 flex flex-col gap-2 sm:gap-2.5">
-            {/* Banner Misi & Feedback */}
-            <div className="bg-white/85 dark:bg-emerald-950/70 backdrop-blur-md rounded-2xl p-2.5 sm:p-3 shadow-md border-2 border-emerald-300/80 dark:border-emerald-700/60 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl sm:text-3xl animate-bounce">🎯</span>
+                  {idx < categoryQueue.length - 1 && (
+                    <div
+                      className={`h-0.5 w-1.5 sm:w-3 rounded-full ${
+                        isPast ? "bg-emerald-500" : "bg-zinc-300 dark:bg-zinc-700"
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Feedback Inline */}
+          {feedback && (
+            <div
+              className={`text-xs font-black px-2.5 py-0.5 rounded-xl border animate-slide-down shadow-xs ${
+                feedback.isError
+                  ? "bg-red-100 text-red-800 border-red-300 dark:bg-red-950/80 dark:text-red-200"
+                  : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/80 dark:text-emerald-200"
+              }`}
+            >
+              <span>{feedback.text}</span>
+            </div>
+          )}
+        </section>
+
+        {/* ============================================================== */}
+        {/* 2. BAGIAN TENGAH: WADAH PILIHAN GAMBAR                          */}
+        {/* ============================================================== */}
+        <section className="w-full flex flex-col gap-1">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xs sm:text-sm font-black tracking-wide uppercase text-emerald-900 dark:text-emerald-200 flex items-center gap-1.5">
+              <span>🖼️</span>
+              <span>Pilihan Gambar ({remainingItems.length} tersisa)</span>
+            </h2>
+            <span className="text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              Sentuh gambar lalu sentuh keranjang di bawah 👇
+            </span>
+          </div>
+
+          <div className="bg-white/80 dark:bg-emerald-950/60 backdrop-blur-md rounded-2xl sm:rounded-3xl p-2 sm:p-2.5 border-2 border-emerald-300/80 dark:border-emerald-700/60 shadow-md">
+            {remainingItems.length === 0 ? (
+              <div className="text-center py-2 animate-scale-up">
+                <span className="text-3xl sm:text-4xl block mb-1">🏆</span>
+                <p className="text-sm sm:text-base font-black text-emerald-700 dark:text-emerald-300">
+                  Luar biasa! Semua 15 gambar tumbuhan sudah berhasil dipilah!
+                </p>
+                <button
+                  onClick={() => setShowSummaryModal(true)}
+                  className="mt-2 px-5 py-1.5 rounded-xl bg-emerald-600 text-white font-black text-xs shadow-md hover:bg-emerald-700 transition-colors cursor-pointer"
+                >
+                  Lihat Rangkuman Hasil
+                </button>
+              </div>
+            ) : (
+              <div className="w-full flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 md:gap-2.5">
+                {remainingItems.map((item) => (
+                  <DraggableItem
+                    key={item.id}
+                    item={item}
+                    isSelected={selectedItem?.id === item.id}
+                    isShaking={shakingItemId === item.id}
+                    onSelect={handleSelectItem}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ============================================================== */}
+        {/* 3. BAGIAN BAWAH: HERO KERANJANG AKTIF TETAP DI BAWAH            */}
+        {/* ============================================================== */}
+        <section className="w-full flex flex-col items-center justify-center relative my-0.5">
+          <div className="w-full max-w-md sm:max-w-lg flex justify-center relative">
+            <BasketContainer
+              category={activeCategory}
+              placedItems={activeCategoryPlacedItems}
+              selectedItem={selectedItem}
+              isHero={true}
+              onDropItem={handleDropItem}
+              onPlaceSelectedItem={handlePlaceSelectedItem}
+            />
+
+            {/* Efek Perayaan Antar Tahap Keranjang Selesai (~1.5 detik) */}
+            {stageCelebration && (
+              <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/85 dark:bg-emerald-950/90 backdrop-blur-sm rounded-3xl animate-scale-up border-4 border-amber-400 shadow-2xl p-4 text-center">
                 <div>
-                  <p className="text-xs sm:text-sm font-black text-emerald-900 dark:text-emerald-100">
-                    Tahap {currentStageIndex + 1}/5: Bagian{" "}
-                    <span className="text-emerald-600 dark:text-emerald-400 underline decoration-wavy font-extrabold">
-                      {activeCategory.name}
-                    </span>!
-                  </p>
-                  <p className="text-[11px] font-semibold text-zinc-600 dark:text-zinc-400">
-                    Sentuh gelembung lalu sentuh keranjang
-                  </p>
+                  <span className="text-4xl block mb-1 animate-bounce">
+                    🎉
+                  </span>
+                  <h3 className="text-base sm:text-lg font-black text-emerald-800 dark:text-emerald-200">
+                    Hebat! Misi Keranjang {stageCelebration.completedName} Selesai!
+                  </h3>
+                  {stageCelebration.nextName ? (
+                    <p className="text-xs font-bold text-zinc-600 dark:text-zinc-300 mt-0.5">
+                      Bersiap menuju keranjang <b>{stageCelebration.nextName}</b>...
+                    </p>
+                  ) : (
+                    <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                      Semua misi keranjang telah tuntas!
+                    </p>
+                  )}
                 </div>
               </div>
-
-              {feedback && (
-                <div
-                  className={`text-xs font-black px-2.5 py-1 rounded-xl border animate-slide-down flex items-center gap-1.5 shadow-xs ${
-                    feedback.isError
-                      ? "bg-red-100 text-red-800 border-red-300 dark:bg-red-950/80 dark:text-red-200 dark:border-red-700"
-                      : "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-900/80 dark:text-emerald-200 dark:border-emerald-600"
-                  }`}
-                >
-                  <span>{feedback.text}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Stepper Indikator Progres 5 Misi */}
-            <div className="w-full flex items-center justify-between px-2 sm:px-3 py-1.5 rounded-2xl bg-white/70 dark:bg-emerald-950/50 backdrop-blur-xs border border-emerald-200 dark:border-emerald-800 shadow-xs">
-              {categoryQueue.map((cat, idx) => {
-                const isPast = idx < currentStageIndex;
-                const isCurrent = idx === currentStageIndex;
-
-                return (
-                  <div key={cat.id} className="flex items-center gap-1 sm:gap-1.5">
-                    <div
-                      className={`flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full text-xs font-black transition-all ${
-                        isPast
-                          ? "bg-emerald-500 text-white shadow-xs"
-                          : isCurrent
-                          ? "bg-amber-400 text-amber-950 ring-2 ring-amber-300/80 scale-105 shadow-md animate-pulse"
-                          : "bg-zinc-200 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
-                      }`}
-                    >
-                      <span>{isPast ? "✓" : isCurrent ? "⭐" : "🔒"}</span>
-                      <span className="hidden sm:inline">{cat.name}</span>
-                    </div>
-
-                    {idx < categoryQueue.length - 1 && (
-                      <div
-                        className={`h-1 w-2 sm:w-4 rounded-full ${
-                          isPast
-                            ? "bg-emerald-500"
-                            : "bg-zinc-300 dark:bg-zinc-700"
-                        }`}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Hero Basket Container */}
-            <div className="w-full flex justify-center relative">
-              <BasketContainer
-                category={activeCategory}
-                placedItems={activeCategoryPlacedItems}
-                selectedItem={selectedItem}
-                isHero={true}
-                onDropItem={handleDropItem}
-                onPlaceSelectedItem={handlePlaceSelectedItem}
-              />
-
-              {/* Efek Perayaan Antar Tahap Keranjang Selesai (~1.5 detik) */}
-              {stageCelebration && (
-                <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/80 dark:bg-emerald-950/90 backdrop-blur-sm rounded-3xl animate-scale-up border-4 border-amber-400 shadow-2xl p-4 sm:p-6 text-center">
-                  <div>
-                    <span className="text-4xl sm:text-5xl block mb-1 animate-bounce">
-                      🎉
-                    </span>
-                    <h3 className="text-base sm:text-xl font-black text-emerald-800 dark:text-emerald-200">
-                      Hebat! Misi Keranjang {stageCelebration.completedName} Selesai!
-                    </h3>
-                    {stageCelebration.nextName ? (
-                      <p className="text-xs sm:text-sm font-bold text-zinc-600 dark:text-zinc-300 mt-1">
-                        Bersiap menuju keranjang <b>{stageCelebration.nextName}</b>...
-                      </p>
-                    ) : (
-                      <p className="text-xs sm:text-sm font-bold text-emerald-600 dark:text-emerald-400 mt-1">
-                        Semua misi keranjang telah tuntas!
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </section>
-        </div>
+            )}
+          </div>
+        </section>
 
         {/* Footer Navigasi & Tips Pembelajaran */}
-        <footer className="pt-2 flex flex-wrap items-center justify-between text-xs font-semibold text-emerald-900/80 dark:text-emerald-200/80 gap-2 border-t border-emerald-300/40 dark:border-emerald-800/40">
+        <footer className="py-1 flex flex-wrap items-center justify-between text-[11px] sm:text-xs font-semibold text-emerald-900/80 dark:text-emerald-200/80 gap-1 border-t border-emerald-300/40 dark:border-emerald-800/40">
           <div className="flex items-center gap-3">
-            <span>👆 <b>Sentuh:</b> Ketuk gelembung gambar lalu ketuk keranjang.</span>
+            <span>👆 <b>Sentuh:</b> Ketuk gelembung gambar lalu ketuk keranjang di bawah.</span>
             <span className="hidden sm:inline">🖱️ <b>Tarik:</b> Geser gelembung langsung ke keranjang.</span>
           </div>
           <div>
