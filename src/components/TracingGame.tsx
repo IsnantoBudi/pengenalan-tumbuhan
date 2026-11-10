@@ -53,7 +53,7 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
   const currentShape: TracingShape = PLANT_TRACING_SHAPES[currentShapeIdx];
   const activeSegment: TracingSegment | undefined = currentShape.segments[activeSegmentIdx];
 
-  // Collect all waypoints that must remain visible (all previously completed numbers + active segment numbers)
+  // Collect all waypoints of the current shape (all numbers remain visible, connected by dashed lines)
   const visibleWaypoints = useMemo(() => {
     const wpMap = new Map<
       number,
@@ -67,59 +67,46 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
       }
     >();
 
-    // 1. Add all completed segments' waypoints so previous numbers never disappear
-    currentShape.segments.forEach((seg) => {
-      const isSegCompleted = completedSegmentIds.includes(seg.id);
-      if (isSegCompleted || isShapeCompleted) {
+    // Register all waypoints across all segments so every number is visible
+    currentShape.segments.forEach((seg, idx) => {
+      const isSegCompleted = completedSegmentIds.includes(seg.id) || isShapeCompleted;
+      const isSegActive = !isShapeCompleted && idx === activeSegmentIdx;
+
+      // Start waypoint
+      if (!wpMap.has(seg.startWaypoint)) {
         wpMap.set(seg.startWaypoint, {
           number: seg.startWaypoint,
           x: seg.startPoint.x,
           y: seg.startPoint.y,
-          isCompleted: true,
-          isActiveStart: false,
+          isCompleted: isSegCompleted,
+          isActiveStart: isSegActive,
           isActiveEnd: false,
         });
+      } else {
+        const existing = wpMap.get(seg.startWaypoint)!;
+        if (isSegCompleted) existing.isCompleted = true;
+        if (isSegActive) existing.isActiveStart = true;
+      }
+
+      // End waypoint
+      if (!wpMap.has(seg.endWaypoint)) {
         wpMap.set(seg.endWaypoint, {
           number: seg.endWaypoint,
           x: seg.endPoint.x,
           y: seg.endPoint.y,
-          isCompleted: true,
+          isCompleted: isSegCompleted,
           isActiveStart: false,
-          isActiveEnd: false,
+          isActiveEnd: isSegActive,
         });
+      } else {
+        const existing = wpMap.get(seg.endWaypoint)!;
+        if (isSegCompleted) existing.isCompleted = true;
+        if (isSegActive) existing.isActiveEnd = true;
       }
     });
 
-    // 2. Add or update active segment waypoints (if not fully finished yet)
-    if (!isShapeCompleted && activeSegment) {
-      // Start waypoint of active segment
-      if (!wpMap.has(activeSegment.startWaypoint)) {
-        wpMap.set(activeSegment.startWaypoint, {
-          number: activeSegment.startWaypoint,
-          x: activeSegment.startPoint.x,
-          y: activeSegment.startPoint.y,
-          isCompleted: false,
-          isActiveStart: true,
-          isActiveEnd: false,
-        });
-      } else {
-        const existing = wpMap.get(activeSegment.startWaypoint)!;
-        existing.isActiveStart = true;
-      }
-
-      // End waypoint of active segment (destination target)
-      wpMap.set(activeSegment.endWaypoint, {
-        number: activeSegment.endWaypoint,
-        x: activeSegment.endPoint.x,
-        y: activeSegment.endPoint.y,
-        isCompleted: false,
-        isActiveStart: false,
-        isActiveEnd: true,
-      });
-    }
-
     return Array.from(wpMap.values()).sort((a, b) => a.number - b.number);
-  }, [currentShape, completedSegmentIds, isShapeCompleted, activeSegment]);
+  }, [currentShape, completedSegmentIds, isShapeCompleted, activeSegmentIdx]);
 
   // Fullscreen listener
   useEffect(() => {
@@ -580,7 +567,28 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
               />
             ))}
 
-            {/* 2. Completed Segments (Rendered in solid vibrant color) */}
+            {/* 2. Dashed Lines Connecting Every Number (Garis putus-putus penghubung setiap angka) */}
+            {currentShape.segments.map((seg, idx) => {
+              const isCompleted = completedSegmentIds.includes(seg.id);
+              const isActive = !isShapeCompleted && idx === activeSegmentIdx;
+              if (isCompleted) return null; // Completed segments are drawn as solid colored lines
+
+              return (
+                <path
+                  key={`dashed-line-${seg.id}`}
+                  d={seg.d}
+                  fill="none"
+                  stroke={isActive ? "#f97316" : "#94a3b8"}
+                  strokeWidth={isActive ? 6 : 4.5}
+                  strokeDasharray={isActive ? "12 8" : "10 8"}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={isActive ? "animate-pulse" : ""}
+                />
+              );
+            })}
+
+            {/* 3. Completed Segments (Rendered in solid vibrant color) */}
             {currentShape.segments
               .filter((seg) => completedSegmentIds.includes(seg.id))
               .map((seg) => (
