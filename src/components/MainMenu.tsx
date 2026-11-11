@@ -1,15 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { soundEngine } from "@/lib/audio";
 
 interface MainMenuProps {
-  onSelectMode: (mode: "basket" | "honeycomb" | "tracing") => void;
+  onSelectMode: (mode: "basket" | "honeycomb" | "tracing" | "cut-paste") => void;
 }
 
 export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
   const [isAudioOn, setIsAudioOn] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
+  const toggleFullscreen = async () => {
+    soundEngine.playClick();
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch {
+      // Ignored if blocked
+    }
+  };
 
   const toggleAudio = () => {
     soundEngine.playClick();
@@ -18,7 +42,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
     soundEngine.setAudioEnabled(next);
   };
 
-  const handleSelect = (mode: "basket" | "honeycomb" | "tracing") => {
+  const handleSelect = (mode: "basket" | "honeycomb" | "tracing" | "cut-paste") => {
     soundEngine.playClick();
     soundEngine.startBgm();
     onSelectMode(mode);
@@ -53,23 +77,46 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
           </div>
         </div>
 
-        {/* Master Sound Button */}
-        <button
-          type="button"
-          onClick={toggleAudio}
-          aria-label={isAudioOn ? "Matikan suara" : "Nyalakan suara"}
-          className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 border border-white/30 cursor-pointer shadow-md"
-        >
-          {isAudioOn ? (
-            <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-            </svg>
-          ) : (
-            <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-              <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
-            </svg>
-          )}
-        </button>
+        {/* Header Action Buttons (Fullscreen & Sound) */}
+        <div className="flex items-center gap-2.5">
+          {/* Fullscreen Button */}
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            aria-label={isFullscreen ? "Keluar Layar Penuh" : "Layar Penuh"}
+            title={isFullscreen ? "Keluar Layar Penuh" : "Layar Penuh"}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 border border-white/30 cursor-pointer shadow-md"
+          >
+            {isFullscreen ? (
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-14v3h3v2h-5V5h2z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+              </svg>
+            )}
+          </button>
+
+          {/* Master Sound Button */}
+          <button
+            type="button"
+            onClick={toggleAudio}
+            aria-label={isAudioOn ? "Matikan suara" : "Nyalakan suara"}
+            title={isAudioOn ? "Matikan suara" : "Nyalakan suara"}
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-md text-white flex items-center justify-center transition-transform active:scale-90 border border-white/30 cursor-pointer shadow-md"
+          >
+            {isAudioOn ? (
+              <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                <path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z" />
+              </svg>
+            )}
+          </button>
+        </div>
       </header>
 
       {/* Hero Title */}
@@ -86,7 +133,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
       </div>
 
       {/* Game Mode Selection Cards */}
-      <main className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 max-w-6xl mx-auto w-full mb-8">
+      <main className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 max-w-7xl mx-auto w-full mb-8">
         {/* Card 1: Pilah Keranjang (Original Drag & Drop) */}
         <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-[0_12px_24px_rgba(0,0,0,0.2)] border-3 border-emerald-300 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-2xl">
           <div>
@@ -198,6 +245,38 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onSelectMode }) => {
             className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-black text-sm shadow-[0_5px_0_#9f1239] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
           >
             <span>Mulai Menggambar</span>
+            <span className="text-base">▶</span>
+          </button>
+        </div>
+
+        {/* Card 4: Gunting & Tempel (Cut & Paste Worksheet Game) */}
+        <div className="bg-white/95 dark:bg-zinc-900/95 backdrop-blur-md rounded-3xl p-5 sm:p-6 shadow-[0_12px_24px_rgba(0,0,0,0.2)] border-3 border-orange-300 flex flex-col justify-between transition-transform duration-200 hover:-translate-y-1.5 hover:shadow-2xl">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <span className="px-3 py-1 bg-orange-100 text-orange-900 font-extrabold text-xs rounded-full">
+                KREASI &amp; LOGIKA ✂️
+              </span>
+              <span className="text-3xl">🧩</span>
+            </div>
+            <div className="relative w-full h-28 sm:h-32 mb-4 flex items-center justify-center bg-gradient-to-tr from-orange-50 to-amber-50 rounded-2xl border border-orange-100 p-2 gap-3 text-4xl">
+              <span className="animate-bounce">✂️</span>
+              <span className="animate-pulse">🌸</span>
+              <span className="animate-bounce" style={{ animationDelay: "0.2s" }}>🧴</span>
+            </div>
+            <h3 className="text-lg sm:text-xl font-black text-zinc-900 dark:text-zinc-100 mb-1">
+              Gunting &amp; Tempel
+            </h3>
+            <p className="text-zinc-600 dark:text-zinc-300 text-xs sm:text-sm font-medium mb-5">
+              Rakit bunga dalam pot, pohon apel, &amp; wortel dengan menempelkan potongan ke siluet!
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleSelect("cut-paste")}
+            className="w-full py-3 px-5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-black text-sm shadow-[0_5px_0_#c2410c] active:translate-y-1 active:shadow-none transition-all cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Mulai Menempel</span>
             <span className="text-base">▶</span>
           </button>
         </div>

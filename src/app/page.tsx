@@ -5,8 +5,9 @@ import { MainMenu } from "@/components/MainMenu";
 import { GameBoard } from "@/components/GameBoard";
 import { HoneycombGame } from "@/components/HoneycombGame";
 import { TracingGame } from "@/components/TracingGame";
+import { CutAndPasteGame } from "@/components/CutAndPasteGame";
 
-type GameMode = "menu" | "basket" | "honeycomb" | "tracing";
+type GameMode = "menu" | "basket" | "honeycomb" | "tracing" | "cut-paste";
 
 export default function Home() {
   const [gameMode, setGameMode] = useState<GameMode>("menu");
@@ -21,6 +22,10 @@ export default function Home() {
 
   if (gameMode === "tracing") {
     return <TracingGame onBackToMenu={() => setGameMode("menu")} />;
+  }
+
+  if (gameMode === "cut-paste") {
+    return <CutAndPasteGame onBackToMenu={() => setGameMode("menu")} />;
   }
 
   return <MainMenu onSelectMode={(mode) => setGameMode(mode)} />;
