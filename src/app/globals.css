@@ -100,8 +100,8 @@
 }
 
 @keyframes pulseWaypoint {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.16); }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.65; }
 }
 
 .animate-pulse-waypoint {
@@ -109,8 +109,8 @@
 }
 
 @keyframes arrowFloat {
-  0%, 100% { transform: translateY(0) scale(1); opacity: 0.85; }
-  50% { transform: translateY(-2px) scale(1.15); opacity: 1; }
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
 }
 
 .animate-arrow-bounce {

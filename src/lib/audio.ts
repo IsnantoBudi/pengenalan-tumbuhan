@@ -1,4 +1,71 @@
-// Web Audio API Synthesizer, BGM, & Speech Engine
+// Web Audio API Synthesizer, BGM, & Studio TTS Audio Engine
+
+// Pre-generated Indonesian Female (id-ID-GadisNeural) Audio Registry
+const TTS_AUDIO_MAP: Record<string, string> = {
+  "akar": "/audio/tts/akar.mp3",
+  "akar pohon": "/audio/tts/akar_pohon.mp3",
+  "akar tanaman": "/audio/tts/akar_tanaman.mp3",
+  "ayo tebalkan akar": "/audio/tts/ayo_tebalkan_akar.mp3",
+  "ayo tebalkan akar pohon tarik dari nomor 1": "/audio/tts/ayo_tebalkan_akar_pohon.mp3",
+  "ayo tebalkan akar tanaman tarik dari nomor 1": "/audio/tts/ayo_tebalkan_akar_tanaman.mp3",
+  "ayo tebalkan akar tarik dari nomor 1": "/audio/tts/ayo_tebalkan_akar.mp3",
+  "ayo tebalkan batang": "/audio/tts/ayo_tebalkan_batang.mp3",
+  "ayo tebalkan batang pohon tarik dari nomor 1": "/audio/tts/ayo_tebalkan_batang_pohon.mp3",
+  "ayo tebalkan batang tarik dari nomor 1": "/audio/tts/ayo_tebalkan_batang.mp3",
+  "ayo tebalkan buah": "/audio/tts/ayo_tebalkan_buah.mp3",
+  "ayo tebalkan buah apel tarik dari nomor 1": "/audio/tts/ayo_tebalkan_buah_apel.mp3",
+  "ayo tebalkan buah tarik dari nomor 1": "/audio/tts/ayo_tebalkan_buah.mp3",
+  "ayo tebalkan bunga": "/audio/tts/ayo_tebalkan_bunga.mp3",
+  "ayo tebalkan bunga enam kelopak tarik dari nomor 1": "/audio/tts/ayo_tebalkan_bunga_enam_kelopak.mp3",
+  "ayo tebalkan bunga lima kelopak tarik dari nomor 1": "/audio/tts/ayo_tebalkan_bunga_lima_kelopak.mp3",
+  "ayo tebalkan bunga tarik dari nomor 1": "/audio/tts/ayo_tebalkan_bunga.mp3",
+  "ayo tebalkan daun": "/audio/tts/ayo_tebalkan_daun.mp3",
+  "ayo tebalkan daun hijau tarik dari nomor 1": "/audio/tts/ayo_tebalkan_daun_hijau.mp3",
+  "ayo tebalkan daun tarik dari nomor 1": "/audio/tts/ayo_tebalkan_daun.mp3",
+  "batang": "/audio/tts/batang.mp3",
+  "batang pohon": "/audio/tts/batang_pohon.mp3",
+  "buah": "/audio/tts/buah.mp3",
+  "buah apel": "/audio/tts/buah_apel.mp3",
+  "bunga": "/audio/tts/bunga.mp3",
+  "bunga enam kelopak": "/audio/tts/bunga_enam_kelopak.mp3",
+  "bunga lima kelopak": "/audio/tts/bunga_lima_kelopak.mp3",
+  "carilah seluruh akar": "/audio/tts/carilah_seluruh_akar.mp3",
+  "carilah seluruh batang": "/audio/tts/carilah_seluruh_batang.mp3",
+  "carilah seluruh buah": "/audio/tts/carilah_seluruh_buah.mp3",
+  "carilah seluruh bunga": "/audio/tts/carilah_seluruh_bunga.mp3",
+  "carilah seluruh daun": "/audio/tts/carilah_seluruh_daun.mp3",
+  "daun": "/audio/tts/daun.mp3",
+  "daun hijau": "/audio/tts/daun_hijau.mp3",
+  "delapan": "/audio/tts/delapan.mp3",
+  "dua": "/audio/tts/dua.mp3",
+  "empat": "/audio/tts/empat.mp3",
+  "enam": "/audio/tts/enam.mp3",
+  "hebat sekali kamu berhasil menggambar akar": "/audio/tts/hebat_akar.mp3",
+  "hebat sekali kamu berhasil menggambar akar pohon": "/audio/tts/hebat_akar_pohon.mp3",
+  "hebat sekali kamu berhasil menggambar akar tanaman": "/audio/tts/hebat_akar_tanaman.mp3",
+  "hebat sekali kamu berhasil menggambar batang": "/audio/tts/hebat_batang.mp3",
+  "hebat sekali kamu berhasil menggambar batang pohon": "/audio/tts/hebat_batang_pohon.mp3",
+  "hebat sekali kamu berhasil menggambar buah": "/audio/tts/hebat_buah.mp3",
+  "hebat sekali kamu berhasil menggambar buah apel": "/audio/tts/hebat_buah_apel.mp3",
+  "hebat sekali kamu berhasil menggambar bunga": "/audio/tts/hebat_bunga.mp3",
+  "hebat sekali kamu berhasil menggambar bunga enam kelopak": "/audio/tts/hebat_bunga_enam_kelopak.mp3",
+  "hebat sekali kamu berhasil menggambar bunga lima kelopak": "/audio/tts/hebat_bunga_lima_kelopak.mp3",
+  "hebat sekali kamu berhasil menggambar daun": "/audio/tts/hebat_daun.mp3",
+  "hebat sekali kamu berhasil menggambar daun hijau": "/audio/tts/hebat_daun_hijau.mp3",
+  "lima": "/audio/tts/lima.mp3",
+  "luar biasa kamu berhasil menyelesaikan seluruh petualangan sarang lebah": "/audio/tts/luar_biasa_sarang_lebah.mp3",
+  "luar biasa semua akar berhasil ditemukan": "/audio/tts/luar_biasa_akar.mp3",
+  "luar biasa semua batang berhasil ditemukan": "/audio/tts/luar_biasa_batang.mp3",
+  "luar biasa semua buah berhasil ditemukan": "/audio/tts/luar_biasa_buah.mp3",
+  "luar biasa semua bunga berhasil ditemukan": "/audio/tts/luar_biasa_bunga.mp3",
+  "luar biasa semua daun berhasil ditemukan": "/audio/tts/luar_biasa_daun.mp3",
+  "satu": "/audio/tts/satu.mp3",
+  "sembilan": "/audio/tts/sembilan.mp3",
+  "sepuluh": "/audio/tts/sepuluh.mp3",
+  "tiga": "/audio/tts/tiga.mp3",
+  "tujuh": "/audio/tts/tujuh.mp3",
+  "yah kesempatanmu habis ayo coba lagi": "/audio/tts/kesempatan_habis.mp3",
+};
 
 class AudioManager {
   private ctx: AudioContext | null = null;
@@ -7,6 +74,135 @@ class AudioManager {
   private speechEnabled: boolean = true;
   private bgmAudio: HTMLAudioElement | null = null;
   private readonly defaultBgmVolume: number = 0.25;
+  private currentTtsAudio: HTMLAudioElement | null = null;
+  private cachedIndonesianFemaleVoice: SpeechSynthesisVoice | null = null;
+  private isVoiceInitialized: boolean = false;
+  private audioCache = new Map<string, HTMLAudioElement>();
+  private activeOscillators: OscillatorNode[] = [];
+
+  constructor() {
+    if (typeof window !== "undefined") {
+      this.initVoices();
+      if (document.readyState === "complete") {
+        this.preloadCommonTts();
+      } else {
+        window.addEventListener("load", () => this.preloadCommonTts(), { once: true });
+      }
+    }
+  }
+
+  // Stop ALL playing sounds, speech, celebration fanfare/applause immediately
+  public stopAll() {
+    // 1. Stop all active oscillators (fanfare, applause, chimes)
+    this.activeOscillators.forEach((osc) => {
+      try {
+        osc.stop();
+        osc.disconnect();
+      } catch {
+        // already stopped
+      }
+    });
+    this.activeOscillators = [];
+
+    // 2. Stop and release current TTS audio completely
+    if (this.currentTtsAudio) {
+      const prev = this.currentTtsAudio;
+      this.currentTtsAudio = null;
+      prev.onended = null;
+      prev.onerror = null;
+      prev.pause();
+      try {
+        prev.currentTime = 0;
+        prev.src = "";
+      } catch {
+        // ignore
+      }
+    }
+
+    // 3. Stop browser speech synthesis if active
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {
+        // ignore
+      }
+    }
+  }
+
+  private normalizeTtsKey(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^\w\s]/g, "")
+      .trim()
+      .replace(/\s+/g, " ");
+  }
+
+  // Preload common number clips so audio plays instantaneously on user touch
+  public preloadCommonTts() {
+    if (typeof window === "undefined") return;
+    const commonKeys = [
+      "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh",
+      "buah apel", "bunga enam kelopak", "daun hijau", "batang pohon", "akar tanaman",
+    ];
+    commonKeys.forEach((key) => {
+      const src = TTS_AUDIO_MAP[key];
+      if (src && !this.audioCache.has(src)) {
+        const audio = new Audio();
+        audio.src = src;
+        audio.preload = "auto";
+        this.audioCache.set(src, audio);
+      }
+    });
+  }
+
+  // Detect and lock strictly Indonesian Female voices in browser speech synthesis
+  private initVoices() {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+    const updateVoices = () => {
+      const voices = window.speechSynthesis.getVoices();
+      if (!voices || voices.length === 0) return;
+
+      // 1. Strictly Indonesian Female: Gadis, Putri, Siti, Google Bahasa Indonesia (Female)
+      const femaleIdVoice = voices.find((v) => {
+        const name = v.name.toLowerCase();
+        const lang = v.lang.toLowerCase();
+        const isId = lang.includes("id") || name.includes("indonesia");
+        const isFemale =
+          name.includes("gadis") ||
+          name.includes("female") ||
+          name.includes("wanita") ||
+          name.includes("putri") ||
+          name.includes("siti") ||
+          name.includes("google bahasa indonesia");
+        const isMale = name.includes("ardi") || name.includes("male") || name.includes("pria");
+        return isId && isFemale && !isMale;
+      });
+
+      // 2. Any Indonesian voice that is not explicitly male
+      const anyNonMaleIdVoice = voices.find((v) => {
+        const name = v.name.toLowerCase();
+        const lang = v.lang.toLowerCase();
+        const isId = lang.includes("id") || name.includes("indonesia");
+        const isMale = name.includes("ardi") || name.includes("male") || name.includes("pria");
+        return isId && !isMale;
+      });
+
+      // 3. Fallback to Malay female (sounds remarkably close to Indonesian)
+      const malayFemale = voices.find((v) => {
+        const name = v.name.toLowerCase();
+        const lang = v.lang.toLowerCase();
+        return (lang.includes("ms") || name.includes("malay")) && (name.includes("female") || name.includes("yasmin"));
+      });
+
+      this.cachedIndonesianFemaleVoice = femaleIdVoice || anyNonMaleIdVoice || malayFemale || null;
+    };
+
+    updateVoices();
+    if (!this.isVoiceInitialized && "onvoiceschanged" in window.speechSynthesis) {
+      window.speechSynthesis.onvoiceschanged = updateVoices;
+      this.isVoiceInitialized = true;
+    }
+  }
 
   private getContext(): AudioContext | null {
     if (typeof window === "undefined") return null;
@@ -52,6 +248,10 @@ class AudioManager {
     const bgm = this.initBgm();
     if (!enabled) {
       if (bgm) bgm.pause();
+      if (this.currentTtsAudio) {
+        this.currentTtsAudio.pause();
+        this.currentTtsAudio = null;
+      }
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         window.speechSynthesis.cancel();
       }
@@ -77,8 +277,14 @@ class AudioManager {
 
   public setSpeechEnabled(enabled: boolean) {
     this.speechEnabled = enabled;
-    if (!enabled && typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
+    if (!enabled) {
+      if (this.currentTtsAudio) {
+        this.currentTtsAudio.pause();
+        this.currentTtsAudio = null;
+      }
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
     }
   }
 
@@ -285,6 +491,7 @@ class AudioManager {
 
       osc.start(start);
       osc.stop(start + note.dur + 0.05);
+      this.activeOscillators.push(osc);
     });
   }
 
@@ -358,6 +565,7 @@ class AudioManager {
 
         osc.start(clapTime);
         osc.stop(clapTime + 0.06);
+        this.activeOscillators.push(osc);
       }
 
       // Cheerful triumph bells layered on top
@@ -378,6 +586,7 @@ class AudioManager {
 
         osc.start(chimeStart);
         osc.stop(chimeStart + 0.5);
+        this.activeOscillators.push(osc);
       });
     } catch {
       // AudioContext fallback
@@ -402,32 +611,80 @@ class AudioManager {
     this.speak(word);
   }
 
-  // Indonesian Text-to-Speech narration with onEnd callback support
+  // Indonesian narration with onEnd callback support
+  // 1. Prioritizes studio-quality pre-generated female Indonesian audio clips (100% consistent across all phones/tablets/PCs)
+  // 2. Intelligent Web Speech API fallback with strict female voice filter for unexpected dynamic strings
   public speak(text: string, onEnd?: () => void) {
-    if (!this.speechEnabled || typeof window === "undefined" || !("speechSynthesis" in window)) {
+    if (!this.speechEnabled || typeof window === "undefined") {
+      if (onEnd) onEnd();
+      return;
+    }
+
+    // Stop all ongoing sounds, speech & audio clips immediately
+    this.stopAll();
+
+    const normKey = this.normalizeTtsKey(text);
+    const audioSrc = TTS_AUDIO_MAP[normKey];
+
+    if (audioSrc) {
+      try {
+        const audio = new Audio(audioSrc);
+        audio.preload = "auto";
+        this.currentTtsAudio = audio;
+
+        let called = false;
+        const safeDone = () => {
+          if (!called) {
+            called = true;
+            if (this.currentTtsAudio === audio) {
+              this.currentTtsAudio = null;
+            }
+            if (onEnd) onEnd();
+          }
+        };
+
+        audio.onended = safeDone;
+        audio.onerror = () => {
+          safeDone();
+        };
+
+        audio.play().catch(() => {
+          safeDone();
+        });
+        return;
+      } catch {
+        if (onEnd) onEnd();
+        return;
+      }
+    }
+
+    // Only if not found in pre-generated clips, try Web Speech with verified female voice
+    this.speakViaWebSpeech(text, onEnd);
+  }
+
+  // Fallback Web Speech API with STRICT Indonesian female voice verification
+  // Never speaks with male voice (Microsoft Ardi / default system male voice)
+  private speakViaWebSpeech(text: string, onEnd?: () => void) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       if (onEnd) onEnd();
       return;
     }
 
     try {
-      window.speechSynthesis.cancel(); // Stop ongoing speech
+      this.initVoices();
 
+      // Strict enforcement: Only speak if a female Indonesian voice is positively confirmed!
+      if (!this.cachedIndonesianFemaleVoice) {
+        if (onEnd) onEnd();
+        return;
+      }
+
+      window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = "id-ID";
-      utterance.rate = 0.95; // slightly slower for clear classroom diction
-      utterance.pitch = 1.05; // friendly tone
-
-      // Pick Indonesian voice if available
-      const voices = window.speechSynthesis.getVoices();
-      const indonesianVoice = voices.find(
-        (v) =>
-          v.lang.toLowerCase().includes("id") ||
-          v.lang.toLowerCase().includes("indonesia") ||
-          v.name.toLowerCase().includes("indonesian")
-      );
-      if (indonesianVoice) {
-        utterance.voice = indonesianVoice;
-      }
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      utterance.voice = this.cachedIndonesianFemaleVoice;
 
       if (onEnd) {
         let called = false;

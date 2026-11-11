@@ -53,7 +53,11 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
   const currentShape: TracingShape = PLANT_TRACING_SHAPES[currentShapeIdx];
   const activeSegment: TracingSegment | undefined = currentShape.segments[activeSegmentIdx];
 
-  // Collect all waypoints of the current shape (all numbers remain visible, connected by dashed lines)
+  // Waypoint Visibility Logic: Progressive Waypoints!
+  // ONLY render:
+  // 1. Waypoints from already-completed segments (isCompleted = true, with checkmark)
+  // 2. Start and end waypoints of the current activeSegment (startWaypoint & endWaypoint)
+  // 3. When shape is completed (isShapeCompleted = true), all waypoints appear with checkmark.
   const visibleWaypoints = useMemo(() => {
     const wpMap = new Map<
       number,
@@ -67,46 +71,96 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
       }
     >();
 
-    // Register all waypoints across all segments so every number is visible
-    currentShape.segments.forEach((seg, idx) => {
-      const isSegCompleted = completedSegmentIds.includes(seg.id) || isShapeCompleted;
-      const isSegActive = !isShapeCompleted && idx === activeSegmentIdx;
+    if (isShapeCompleted) {
+      currentShape.segments.forEach((seg) => {
+        if (!wpMap.has(seg.startWaypoint)) {
+          wpMap.set(seg.startWaypoint, {
+            number: seg.startWaypoint,
+            x: seg.startPoint.x,
+            y: seg.startPoint.y,
+            isCompleted: true,
+            isActiveStart: false,
+            isActiveEnd: false,
+          });
+        }
+        if (!wpMap.has(seg.endWaypoint)) {
+          wpMap.set(seg.endWaypoint, {
+            number: seg.endWaypoint,
+            x: seg.endPoint.x,
+            y: seg.endPoint.y,
+            isCompleted: true,
+            isActiveStart: false,
+            isActiveEnd: false,
+          });
+        }
+      });
+      return Array.from(wpMap.values()).sort((a, b) => a.number - b.number);
+    }
 
-      // Start waypoint
-      if (!wpMap.has(seg.startWaypoint)) {
-        wpMap.set(seg.startWaypoint, {
-          number: seg.startWaypoint,
-          x: seg.startPoint.x,
-          y: seg.startPoint.y,
-          isCompleted: isSegCompleted,
-          isActiveStart: isSegActive,
-          isActiveEnd: false,
-        });
-      } else {
-        const existing = wpMap.get(seg.startWaypoint)!;
-        if (isSegCompleted) existing.isCompleted = true;
-        if (isSegActive) existing.isActiveStart = true;
-      }
+    // 1. Completed waypoints (remain visible so student sees their progress!)
+    currentShape.segments.forEach((seg) => {
+      if (completedSegmentIds.includes(seg.id)) {
+        if (!wpMap.has(seg.startWaypoint)) {
+          wpMap.set(seg.startWaypoint, {
+            number: seg.startWaypoint,
+            x: seg.startPoint.x,
+            y: seg.startPoint.y,
+            isCompleted: true,
+            isActiveStart: false,
+            isActiveEnd: false,
+          });
+        } else {
+          wpMap.get(seg.startWaypoint)!.isCompleted = true;
+        }
 
-      // End waypoint
-      if (!wpMap.has(seg.endWaypoint)) {
-        wpMap.set(seg.endWaypoint, {
-          number: seg.endWaypoint,
-          x: seg.endPoint.x,
-          y: seg.endPoint.y,
-          isCompleted: isSegCompleted,
-          isActiveStart: false,
-          isActiveEnd: isSegActive,
-        });
-      } else {
-        const existing = wpMap.get(seg.endWaypoint)!;
-        if (isSegCompleted) existing.isCompleted = true;
-        if (isSegActive) existing.isActiveEnd = true;
+        if (!wpMap.has(seg.endWaypoint)) {
+          wpMap.set(seg.endWaypoint, {
+            number: seg.endWaypoint,
+            x: seg.endPoint.x,
+            y: seg.endPoint.y,
+            isCompleted: true,
+            isActiveStart: false,
+            isActiveEnd: false,
+          });
+        } else {
+          wpMap.get(seg.endWaypoint)!.isCompleted = true;
+        }
       }
     });
 
+    // 2. Active segment waypoints ONLY (Start & Destination target)
+    if (activeSegment) {
+      if (!wpMap.has(activeSegment.startWaypoint)) {
+        wpMap.set(activeSegment.startWaypoint, {
+          number: activeSegment.startWaypoint,
+          x: activeSegment.startPoint.x,
+          y: activeSegment.startPoint.y,
+          isCompleted: false,
+          isActiveStart: true,
+          isActiveEnd: false,
+        });
+      } else {
+        const existing = wpMap.get(activeSegment.startWaypoint)!;
+        existing.isActiveStart = true;
+      }
+
+      if (!wpMap.has(activeSegment.endWaypoint)) {
+        wpMap.set(activeSegment.endWaypoint, {
+          number: activeSegment.endWaypoint,
+          x: activeSegment.endPoint.x,
+          y: activeSegment.endPoint.y,
+          isCompleted: false,
+          isActiveStart: false,
+          isActiveEnd: true,
+        });
+      } else {
+        const existing = wpMap.get(activeSegment.endWaypoint)!;
+        existing.isActiveEnd = true;
+      }
+    }
+
     return Array.from(wpMap.values()).sort((a, b) => a.number - b.number);
-  }, [currentShape, completedSegmentIds, isShapeCompleted, activeSegmentIdx]);
+  }, [currentShape, completedSegmentIds, isShapeCompleted, activeSegment]);
 
   // Fullscreen listener
   useEffect(() => {
@@ -122,6 +176,7 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
   // Reset segment states whenever shape changes
   const loadShape = useCallback(
     (shapeIndex: number) => {
+      soundEngine.stopAll();
       setCurrentShapeIdx(shapeIndex);
       setActiveSegmentIdx(0);
       setCompletedSegmentIds([]);
@@ -131,7 +186,7 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
       setSparkles([]);
 
       const nextShape = PLANT_TRACING_SHAPES[shapeIndex];
-      // Announce shape name to student
+      // Announce shape name to student cleanly
       soundEngine.speak(`Ayo tebalkan ${nextShape.audioWord}! Tarik dari nomor 1`);
     },
     []
@@ -176,12 +231,14 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
   };
 
   const handleNextShape = () => {
+    soundEngine.stopAll();
     soundEngine.playClick();
     const next = (currentShapeIdx + 1) % PLANT_TRACING_SHAPES.length;
     loadShape(next);
   };
 
   const handlePrevShape = () => {
+    soundEngine.stopAll();
     soundEngine.playClick();
     const prev = (currentShapeIdx - 1 + PLANT_TRACING_SHAPES.length) % PLANT_TRACING_SHAPES.length;
     loadShape(prev);
@@ -267,9 +324,6 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
   // Complete the active segment
   const finishActiveSegment = useCallback(
     (segment: TracingSegment) => {
-      soundEngine.speakNumber(segment.endWaypoint);
-      soundEngine.playSparkleChime();
-
       setCompletedSegmentIds((prev) => [...prev, segment.id]);
       setDrawnPoints([]);
       setActiveProgressSampleIdx(0);
@@ -277,15 +331,16 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
 
       const nextSegIdx = activeSegmentIdx + 1;
       if (nextSegIdx < currentShape.segments.length) {
+        soundEngine.speakNumber(segment.endWaypoint);
+        soundEngine.playSparkleChime();
         setActiveSegmentIdx(nextSegIdx);
       } else {
-        // Entire shape completed!
+        // Entire shape completed! Stop number chime, celebrate & announce shape completion
         setIsShapeCompleted(true);
         if (confettiCanvasRef.current) {
           launchConfetti(confettiCanvasRef.current, 3500);
         }
         soundEngine.playApplause();
-        soundEngine.playFanfare();
         soundEngine.speak(`Hebat sekali! Kamu berhasil menggambar ${currentShape.audioWord}!`);
       }
     },
@@ -567,10 +622,26 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
               />
             ))}
 
-            {/* 2. Dashed Lines Connecting Every Number (Garis putus-putus penghubung setiap angka) */}
-            {currentShape.segments.map((seg, idx) => {
+            {/* 1b. Background Stencil Artwork & Details (e.g. Smiling face & Stem for Flower, Veins for Leaf) */}
+            {currentShape.backgroundDecorations && (
+              <g className="pointer-events-none">
+                {currentShape.backgroundDecorations.map((item, idx) => (
+                  <path
+                    key={`bg-decor-${idx}`}
+                    d={item.d}
+                    fill={item.fill || "none"}
+                    stroke={item.stroke || "none"}
+                    strokeWidth={item.strokeWidth || 0}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ))}
+              </g>
+            )}
+
+            {/* 2. Dashed Lines Connecting Numbers (Garis putus-putus penghubung setiap angka, konsisten & rapi) */}
+            {currentShape.segments.map((seg) => {
               const isCompleted = completedSegmentIds.includes(seg.id);
-              const isActive = !isShapeCompleted && idx === activeSegmentIdx;
               if (isCompleted) return null; // Completed segments are drawn as solid colored lines
 
               return (
@@ -578,12 +649,11 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
                   key={`dashed-line-${seg.id}`}
                   d={seg.d}
                   fill="none"
-                  stroke={isActive ? "#f97316" : "#94a3b8"}
-                  strokeWidth={isActive ? 6 : 4.5}
-                  strokeDasharray={isActive ? "12 8" : "10 8"}
+                  stroke="#94a3b8"
+                  strokeWidth={4.5}
+                  strokeDasharray="10 8"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={isActive ? "animate-pulse" : ""}
                 />
               );
             })}
@@ -620,19 +690,9 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
               </g>
             )}
 
-            {/* 4. Active Segment Guide & Direction Arrows */}
+            {/* 4. Active Segment Direction Arrows & Drawn Stroke */}
             {!isShapeCompleted && activeSegment && (
               <g>
-                {/* Active Guide Track */}
-                <path
-                  d={activeSegment.d}
-                  fill="none"
-                  stroke="#cbd5e1"
-                  strokeWidth={32}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-
                 {/* Direction Arrows along the active segment */}
                 {activeSegment.arrows.map((arr, idx) => (
                   <g
@@ -680,13 +740,12 @@ export const TracingGame: React.FC<TracingGameProps> = ({ onBackToMenu }) => {
                   {/* Outer animated ring for active destination */}
                   {wp.isActiveEnd && (
                     <circle
-                      r={27}
+                      r={28}
                       fill="none"
                       stroke="#f97316"
                       strokeWidth={3}
-                      strokeDasharray="4 4"
-                      className="animate-spin"
-                      style={{ animationDuration: "6s", transformOrigin: "0 0" }}
+                      strokeDasharray="5 4"
+                      className="animate-pulse"
                     />
                   )}
 
